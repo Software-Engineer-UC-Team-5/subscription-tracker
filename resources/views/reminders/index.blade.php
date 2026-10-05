@@ -151,15 +151,16 @@
                                         H-{{ $reminder->notify_before_days }} Hari
                                     </td>
                                     <td class="px-6 py-4">
-                                        @if ($reminder->is_active)
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                                                Aktif
-                                            </span>
-                                        @else
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-600 border border-slate-200">
-                                                Mati
-                                            </span>
-                                        @endif
+                                        <form action="{{ route('reminders.toggle', $reminder) }}" method="POST" class="inline">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button type="submit"
+                                                class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold transition cursor-pointer {{ $reminder->is_active ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100' : 'bg-slate-100 text-slate-600 border border-slate-200 hover:bg-slate-200' }}"
+                                                title="Klik untuk {{ $reminder->is_active ? 'menonaktifkan' : 'mengaktifkan' }} pengingat">
+                                                <span class="w-1.5 h-1.5 rounded-full {{ $reminder->is_active ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400' }}"></span>
+                                                {{ $reminder->is_active ? 'Aktif' : 'Mati' }}
+                                            </button>
+                                        </form>
                                     </td>
                                     <td class="px-6 py-4 text-right">
                                         <form action="{{ route('reminders.destroy', $reminder) }}" method="POST" class="inline"

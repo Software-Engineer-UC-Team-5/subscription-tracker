@@ -180,14 +180,12 @@ class ExampleTest extends TestCase
     {
         $user = User::factory()->create();
 
-        // 1. Awalnya belum ada notifikasi, unread count = 0
         $this->assertEquals(0, $user->unreadNotificationsCount());
 
         $responseNoBadge = $this->actingAs($user)->get('/dashboard');
         $responseNoBadge->assertStatus(200);
         $responseNoBadge->assertDontSee('bg-rose-500');
 
-        // 2. Buat notifikasi baru untuk pengguna dengan status SENT
         $notification = \App\Models\Notification::create([
             'user_id' => $user->id,
             'type' => \App\Enums\NotificationType::PAYMENT_REMINDER,
@@ -198,12 +196,10 @@ class ExampleTest extends TestCase
 
         $this->assertEquals(1, $user->unreadNotificationsCount());
 
-        // 3. Request dashboard sekarang harus menampilkan badge angka 1
         $responseWithBadge = $this->actingAs($user)->get('/dashboard');
         $responseWithBadge->assertStatus(200);
         $responseWithBadge->assertSee('bg-rose-500');
 
-        // 4. Tandai notifikasi sebagai dibaca (PATCH /notifications/{id}/read)
         $this->actingAs($user)->patch("/notifications/{$notification->id}/read");
 
         $this->assertEquals(0, $user->unreadNotificationsCount());
@@ -211,5 +207,74 @@ class ExampleTest extends TestCase
             'id' => $notification->id,
             'status' => \App\Enums\NotificationStatus::READ->value,
         ]);
+    }
+
+    /**
+     * Pengujian pengguna dapat mengubah status aktif/nonaktif pengingat (toggle).
+     */
+    public function test_user_can_toggle_reminder_status(): void
+    {
+        $user = User::factory()->create();
+        $subscription = \App\Models\Subscription::create([
+            'user_id' => $user->id,
+            'name' => 'Netflix Premium',
+            'price' => 186000,
+            'currency' => 'IDR',
+            'billing_period' => \App\Enums\BillingPeriod::MONTHLY,
+            'next_payment_date' => now()->addDays(5)->toDateString(),
+            'status' => \App\Enums\SubscriptionStatus::ACTIVE,
+        ]);
+
+        $reminder = \App\Models\Reminder::create([
+            'user_id' => $user->id,
+            'subscription_id' => $subscription->id,
+            'type' => \App\Enums\ReminderType::PAYMENT_DUE,
+            'notify_before_days' => 3,
+            'is_active' => true,
+        ]);
+
+        $responseDeactivate = $this->actingAs($user)->patch("/reminders/{$reminder->id}/toggle");
+        $responseDeactivate->assertRedirect();
+        $this->assertDatabaseHas('reminders', [
+            'id' => $reminder->id,
+            'is_active' => false,
+        ]);
+
+        $responseActivate = $this->actingAs($user)->patch("/reminders/{$reminder->id}/toggle");
+        $responseActivate->assertRedirect();
+        $this->assertDatabaseHas('reminders', [
+            'id' => $reminder->id,
+            'is_active' => true,
+        ]);
+    }
+
+    /**
+     * Pengujian keamanan: Pengguna tidak boleh mengubah status pengingat milik pengguna lain (NFR-004).
+     */
+    public function test_user_cannot_toggle_other_users_reminder(): void
+    {
+        $userA = User::factory()->create();
+        $userB = User::factory()->create();
+
+        $subscriptionA = \App\Models\Subscription::create([
+            'user_id' => $userA->id,
+            'name' => 'Sub User A',
+            'price' => 50000,
+            'currency' => 'IDR',
+            'billing_period' => \App\Enums\BillingPeriod::MONTHLY,
+            'next_payment_date' => now()->addDays(5)->toDateString(),
+            'status' => \App\Enums\SubscriptionStatus::ACTIVE,
+        ]);
+
+        $reminderA = \App\Models\Reminder::create([
+            'user_id' => $userA->id,
+            'subscription_id' => $subscriptionA->id,
+            'type' => \App\Enums\ReminderType::PAYMENT_DUE,
+            'notify_before_days' => 3,
+            'is_active' => true,
+        ]);
+
+        $response = $this->actingAs($userB)->patch("/reminders/{$reminderA->id}/toggle");
+        $response->assertStatus(403);
     }
 }

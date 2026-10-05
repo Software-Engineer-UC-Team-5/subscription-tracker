@@ -50,6 +50,27 @@ class ReminderController extends Controller
     }
 
     /**
+     * Ubah status aktif/nonaktif pengingat.
+     */
+    public function toggle(Reminder $reminder): RedirectResponse
+    {
+        if ($reminder->user_id !== auth()->id()) {
+            abort(403, 'Anda tidak memiliki hak akses untuk mengubah status pengingat ini.');
+        }
+
+        if ($reminder->is_active) {
+            $reminder->deactivate();
+            $pesan = 'Pengingat berhasil dinonaktifkan.';
+        } else {
+            $reminder->activate();
+            $pesan = 'Pengingat berhasil diaktifkan.';
+        }
+
+        return redirect()->back()
+            ->with('success', $pesan);
+    }
+
+    /**
      * Hapus konfigurasi pengingat.
      */
     public function destroy(Reminder $reminder): RedirectResponse

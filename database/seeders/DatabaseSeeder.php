@@ -25,27 +25,27 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // 1. Akun Pengguna Demo Utama (Sesuai dokumentasi README.md)
+        // Akun Pengguna Demo Utama (Sesuai dokumentasi README.md)
         $user = User::create([
             'name' => 'Demo User',
             'email' => 'user@example.com',
             'password' => Hash::make('password'),
         ]);
 
-        // 2. Kategori Default Sistem (user_id = null)
+        // Kategori Default Sistem (user_id = null)
         $catEntertainment = Category::create(['name' => 'Hiburan & Streaming', 'icon' => 'tv', 'color' => '#ef4444', 'user_id' => null]);
         $catProductivity = Category::create(['name' => 'Produktivitas & Kerja', 'icon' => 'briefcase', 'color' => '#3b82f6', 'user_id' => null]);
         $catCloud = Category::create(['name' => 'Penyimpanan Cloud', 'icon' => 'cloud', 'color' => '#10b981', 'user_id' => null]);
         $catEducation = Category::create(['name' => 'Pendidikan & Kursus', 'icon' => 'academic-cap', 'color' => '#f59e0b', 'user_id' => null]);
         $catUtility = Category::create(['name' => 'Utilitas & Tools', 'icon' => 'wrench', 'color' => '#8b5cf6', 'user_id' => null]);
 
-        // 3. Metode Pembayaran Demo (Alias Tanpa Data Sensitif - NFR-004)
+        // Metode Pembayaran Demo (Alias Tanpa Data Sensitif - NFR-004)
         $pmBca = PaymentMethod::create(['user_id' => $user->id, 'name' => 'BCA Debit']);
         $pmJenius = PaymentMethod::create(['user_id' => $user->id, 'name' => 'Jenius Visa']);
         $pmGopay = PaymentMethod::create(['user_id' => $user->id, 'name' => 'GoPay']);
 
-        // 4. Langganan Demo
-        // Sub 1: Netflix Premium (Tagihan Mendatang dalam 3 hari)
+        // Langganan Demo
+        // Netflix Premium (Tagihan Mendatang dalam 3 hari)
         $subNetflix = Subscription::create([
             'user_id' => $user->id,
             'category_id' => $catEntertainment->id,
@@ -68,7 +68,7 @@ class DatabaseSeeder extends Seeder
             'is_active' => true,
         ]);
 
-        // Sub 2: Spotify Family
+        // Spotify Family
         $subSpotify = Subscription::create([
             'user_id' => $user->id,
             'category_id' => $catEntertainment->id,
@@ -82,7 +82,7 @@ class DatabaseSeeder extends Seeder
             'is_free_trial' => false,
         ]);
 
-        // Sub 3: YouTube Premium (Sedang Masa Free Trial - UC10 / FR-004)
+        // YouTube Premium (Sedang Masa Free Trial - UC10 / FR-004)
         $subYoutube = Subscription::create([
             'user_id' => $user->id,
             'category_id' => $catEntertainment->id,
@@ -112,7 +112,7 @@ class DatabaseSeeder extends Seeder
             'is_active' => true,
         ]);
 
-        // Sub 4: Google One 2TB (Billing Tahunan)
+        // Google One 2TB (Billing Tahunan)
         Subscription::create([
             'user_id' => $user->id,
             'category_id' => $catCloud->id,
@@ -126,7 +126,7 @@ class DatabaseSeeder extends Seeder
             'is_free_trial' => false,
         ]);
 
-        // Sub 5: ChatGPT Plus (Billing Bulanan)
+        // ChatGPT Plus (Billing Bulanan)
         Subscription::create([
             'user_id' => $user->id,
             'category_id' => $catProductivity->id,
@@ -140,7 +140,7 @@ class DatabaseSeeder extends Seeder
             'is_free_trial' => false,
         ]);
 
-        // Sub 6: Disney+ Hotstar (Sudah Berhenti / CANCELLED)
+        // Disney+ Hotstar (Sudah Berhenti / CANCELLED)
         Subscription::create([
             'user_id' => $user->id,
             'category_id' => $catEntertainment->id,
@@ -154,7 +154,7 @@ class DatabaseSeeder extends Seeder
             'is_free_trial' => false,
         ]);
 
-        // 5. Notifikasi Simulasi
+        // Notifikasi Simulasi
         Notification::create([
             'user_id' => $user->id,
             'reminder_id' => null,
@@ -177,7 +177,7 @@ class DatabaseSeeder extends Seeder
             'read_at' => null,
         ]);
 
-        // 6. Log Aktivitas Pengguna (Audit Trail - NFR-004)
+        // Log Aktivitas Pengguna (Audit Trail - NFR-004)
         ActivityLog::record(
             userId: $user->id,
             action: 'LOGIN',

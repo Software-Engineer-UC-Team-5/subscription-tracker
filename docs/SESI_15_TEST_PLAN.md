@@ -34,6 +34,7 @@ Berdasarkan pendekatan **V-Model**, pengujian sistem _Subscription Tracker_ dira
 | **TC-11** | UC12 / FR-006        | Eksekusi Scheduler Pengingat Otomatis      | Jalankan artisan command `app:check-reminders` saat ada tagihan H-3   | Notifikasi berstatus `PENDING` dibuat, email terkirim, status berubah `SENT` | Component / System | **PASS** |
 | **TC-12** | NFR-004              | Keamanan Metode Pembayaran                 | Input metode pembayaran: "BCA Debit Utama"                            | Sistem hanya menyimpan nama alias, tidak meminta/menyimpan nomor kartu       | System / Security  | Pending  |
 | **TC-13** | UC12 / FR-006        | Indikator _Bubble Badge_ Notifikasi Unread | Notifikasi baru masuk status `SENT` & ditandai `READ`                 | _Badge_ merah counter muncul di header & sidebar, berkurang saat dibaca      | Component / System | **PASS** |
+| **TC-14** | UC11 / FR-006        | Toggle Status Pengingat (_Active/Inactive_) | Klik tombol toggle status pengingat pada tabel daftar pengingat       | Status `is_active` berganti (on/off), scheduler mengabaikan pengingat mati   | Component / System | **PASS** |
 
 ---
 

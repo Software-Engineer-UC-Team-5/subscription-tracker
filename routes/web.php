@@ -48,6 +48,7 @@ Route::middleware('auth')->group(function () {
     // Pengingat
     Route::get('/reminders', [ReminderController::class, 'index'])->name('reminders.index');
     Route::post('/reminders', [ReminderController::class, 'store'])->name('reminders.store');
+    Route::patch('/reminders/{reminder}/toggle', [ReminderController::class, 'toggle'])->name('reminders.toggle');
     Route::delete('/reminders/{reminder}', [ReminderController::class, 'destroy'])->name('reminders.destroy');
 
     // Notifikasi
