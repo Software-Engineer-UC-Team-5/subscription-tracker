@@ -1,58 +1,149 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Subscription Tracker
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Sistem manajemen dan pelacak biaya langganan berbasis web (Laravel 12 / PHP 8.2+) untuk memantau siklus tagihan, masa *free trial*, pengingat jatuh tempo, dan riwayat notifikasi.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 01. PRASYARAT SISTEM
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Sebelum memulai, pastikan perangkat Anda telah terpasang:
+- **PHP**: Versi 8.2 atau lebih baru (disarankan 8.3 / 8.4)
+- **Composer**: Versi 2.x
+- **Database**: MySQL atau MariaDB (port default 3306)
+- **Web Server / Lingkungan Lokal**:
+  - **Laravel Herd** (Sangat disarankan), ATAU
+  - **PHP CLI (`php artisan serve`)** / **XAMPP**
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## 02. PANDUAN INSTALASI & SETUP (LANGKAH DEMI LANGKAH)
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+> [!IMPORTANT]
+> Jalankan perintah berikut secara berurutan di dalam terminal untuk menyiapkan proyek dari awal:
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
-
+### Langkah 1: Kloning Repository
+Buka terminal dan unduh repositori ini ke komputer lokal Anda:
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+git clone https://github.com/Software-Engineer-UC-Team-5/subscription-tracker.git
+cd subscription-tracker
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+### Langkah 2: Instal Dependensi PHP
+Jalankan instalasi dependensi vendor via Composer:
+```bash
+composer install
+```
 
-## Contributing
+### Langkah 3: Konfigurasi Berkas Environment (.env)
+Salin template konfigurasi `.env.example` menjadi `.env`:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+- **Windows (PowerShell / CMD):**
+  ```powershell
+  copy .env.example .env
+  ```
+- **macOS / Linux:**
+  ```bash
+  cp .env.example .env
+  ```
 
-## Code of Conduct
+Buka berkas `.env` dan sesuaikan kredensial koneksi basis data MySQL lokal Anda:
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=subscription_tracker
+DB_USERNAME=root
+DB_PASSWORD=root
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+> [!NOTE]
+> Jika menggunakan XAMPP standar tanpa kata sandi, biarkan `DB_PASSWORD=` kosong. Jika menggunakan Laravel Herd, sesuaikan dengan kata sandi MySQL lokal Anda.
 
-## Security Vulnerabilities
+### Langkah 4: Generate Application Encryption Key
+Buat kunci enkripsi aplikasi:
+```bash
+php artisan key:generate
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### Langkah 5: Eksekusi Migrasi Basis Data & Seeder
+Pastikan service database MySQL aktif, kemudian jalankan seluruh migrasi dan seed data awal:
+```bash
+php artisan migrate:fresh --seed
+```
+Perintah ini akan membuat 10 tabel domain dan mengisi akun demo serta 5 kategori default (Streaming, Gaming, Productivity, Cloud, Music).
 
-## License
+---
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## 03. CARA MENJALANKAN APLIKASI DI BROWSER
+
+Pilih salah satu metode berikut sesuai lingkungan yang Anda gunakan:
+
+### METODE A: Menggunakan Laravel Herd (Rekomendasi)
+Jika menggunakan **Laravel Herd**:
+1. Pastikan direktori proyek berada di dalam folder yang dipantau oleh Herd (*parked* atau *linked*).
+2. Buka browser dan akses alamat lokal:
+   ```text
+   http://subscription-tracker.test
+   ```
+*(Tidak perlu menjalankan perintah server tambahan di terminal).*
+
+> [!TIP]
+> Laravel Herd secara otomatis mengelola service PHP, Nginx, dan DNS lokal `.test`.
+
+### METODE B: Menggunakan Server Lokal Bawaan (Artisan Serve)
+Jika menggunakan XAMPP atau PHP CLI standar:
+1. Jalankan server lokal melalui terminal proyek:
+   ```bash
+   php artisan serve
+   ```
+2. Buka browser dan akses alamat default:
+   ```text
+   http://127.0.0.1:8000
+   ```
+
+---
+
+## 04. KREDENSIAL AKUN DEMO
+
+Setelah proses seed berhasil, Anda dapat langsung menguji login dengan akun bawaan berikut:
+
+| Parameter | Kredensial Default |
+| :--- | :--- |
+| **Email** | `user@example.com` |
+| **Kata Sandi** | `password` |
+
+*(Fitur registrasi akun baru juga dapat dicoba mandiri melalui halaman `/register`).*
+
+---
+
+## 05. AUTOMATED TESTING
+
+Proyek ini telah dilengkapi automated feature tests untuk menguji seluruh alur autentikasi, proteksi sesi, dan ketersediaan 37 rute aplikasi:
+```bash
+php artisan test
+```
+
+---
+
+## 06. STRUKTUR MODUL & 37 RUTE AKTIF
+
+Seluruh rute aplikasi telah terdaftar aktif tanpa status 404:
+
+- **Autentikasi**: Masuk akun (`/login`), pendaftaran (`/register`), dan keluar sesi (`/logout`).
+- **Dashboard & Analisis**: Ringkasan biaya langganan dan jadwal tagihan mendatang (`/dashboard`).
+- **Subscriptions**: Manajemen langganan aktif, arsip, dan riwayat pembayaran (`/subscriptions`).
+- **Kategori**: Pengelompokan jenis layanan langganan (`/categories`).
+- **Metode Pembayaran**: Pengelolaan instrumen pembayaran seperti kartu, e-wallet, dan transfer bank (`/payment-methods`).
+- **Pengingat (Reminders)**: Konfigurasi pengingat jatuh tempo dan akhir masa *free trial* (`/reminders`).
+- **Notifikasi**: Riwayat notifikasi sistem/email dan penandaan baca (`/notifications`).
+- **Log Aktivitas**: Audit trail riwayat tindakan pengguna pada sistem (`/activity-logs`).
+
+---
+
+## 07. PANDUAN FRONTEND
+
+- **Framework CSS**: Menggunakan **Tailwind CSS via CDN** yang diatur terpusat di [resources/views/layouts/app.blade.php](resources/views/layouts/app.blade.php).
+- **Tema Warna**: Warna primer telah dikonfigurasi ke **biru standar** (`#2563eb`).
+- **Kanvas Kosong**: Seluruh view fitur saat ini berupa kanvas kosong dengan header navigasi yang rapi, siap untuk langsung ditempelkan kode komponen HTML dari Google Stitch tanpa batasan styling kotak.
+
+---
