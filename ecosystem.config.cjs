@@ -24,9 +24,7 @@ module.exports = {
         },
         {
             name: "subscriptiontracker-scheduler",
-            script: "artisan",
-            interpreter: "php",
-            args: "schedule:work",
+            script: "scheduler.cjs",
             exec_mode: "fork",
             autorestart: true,
             watch: false,
