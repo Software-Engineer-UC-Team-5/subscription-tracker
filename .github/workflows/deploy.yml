@@ -24,6 +24,28 @@ jobs:
               $env:Path = "$phpDir;$composerDir;$env:Path"
           }
 
+          # Injeksi Path NPM Global (tempat pm2 terinstall)
+          $npmGlobalPaths = @(
+              "$env:APPDATA\npm",
+              "C:\Users\Server 02\AppData\Roaming\npm",
+              "C:\Program Files\nodejs"
+          )
+          try {
+              $npmPrefix = (npm config get prefix 2>$null)
+              if ($npmPrefix) { $npmGlobalPaths += $npmPrefix.Trim() }
+          } catch {}
+
+          foreach ($p in $npmGlobalPaths) {
+              if (Test-Path $p) {
+                  $env:Path = "$p;$env:Path"
+              }
+          }
+
+          # Pastikan runner mengontrol daemon PM2 yang sama di user Server 02
+          if (Test-Path "C:\Users\Server 02\.pm2") {
+              $env:PM2_HOME = "C:\Users\Server 02\.pm2"
+          }
+
           $targetDir = "C:\laragon\www\subscription-tracker"
 
           Write-Host "=========================================="
@@ -75,19 +97,20 @@ jobs:
 
           # 8. Restart / Start PM2 (Queue & Scheduler)
           Write-Host "[7/7] Memperbarui PM2 worker (Queue & Scheduler)..."
+          $pm2Exec = if (Get-Command "pm2" -ErrorAction SilentlyContinue) { "pm2" } else { "npx pm2" }
           try {
-              $pm2List = pm2 jlist | ConvertFrom-Json
+              $pm2List = & $pm2Exec jlist | ConvertFrom-Json
               $queueRunning = $pm2List | Where-Object { $_.name -eq "subscriptiontracker-queue" }
               if ($queueRunning) {
-                  pm2 restart ecosystem.config.cjs
+                  & $pm2Exec restart ecosystem.config.cjs
               } else {
-                  pm2 start ecosystem.config.cjs
+                  & $pm2Exec start ecosystem.config.cjs
               }
-              pm2 save
+              & $pm2Exec save
           } catch {
               Write-Host "Menjalankan PM2 restart secara langsung..."
-              pm2 restart ecosystem.config.cjs
-              pm2 save
+              & $pm2Exec restart ecosystem.config.cjs
+              & $pm2Exec save
           }
 
           Write-Host "=========================================="
