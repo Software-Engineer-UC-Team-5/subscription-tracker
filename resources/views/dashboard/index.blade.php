@@ -39,7 +39,8 @@
                         <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800">Aktif</span>
                     </div>
                     <p class="text-xs text-slate-600 mt-0.5">
-                        Pengingat email dan scheduler berjalan setiap 15 menit untuk memantau jatuh tempo autodebit dan masa
+                        Pengingat email dan scheduler berjalan otomatis setiap menit untuk memantau jatuh tempo autodebit
+                        dan masa
                         free trial.
                     </p>
                 </div>

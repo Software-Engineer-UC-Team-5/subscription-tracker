@@ -44,7 +44,7 @@
                             d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                     </svg>
                 </div>
-                <span class="font-bold text-slate-900 tracking-tight text-base">SubTracker</span>
+                <span class="font-bold text-slate-900 tracking-tight text-base">Subscription Tracker</span>
             </div>
             <button onclick="toggleMobileMenu()" type="button"
                 class="p-2 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition">

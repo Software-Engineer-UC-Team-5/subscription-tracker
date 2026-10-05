@@ -170,7 +170,7 @@ Sistem Subscription Tracker dilengkapi fungsionalitas otomatis untuk memeriksa j
 
 ### 1. Menjalankan Task Scheduler (Pengecekan Pengingat)
 
-Sistem memiliki command scheduler bawaan yang dikonfigurasi untuk berjalan setiap 15 menit (`routes/console.php`):
+Sistem memiliki command scheduler bawaan yang dikonfigurasi untuk berjalan setiap menit (`routes/console.php`):
 
 -   **Di Lingkungan Pengembangan Lokal (Local Development)**:
     Jalankan worker scheduler melalui terminal terpisah:
