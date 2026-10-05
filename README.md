@@ -177,6 +177,29 @@ Sistem memiliki command scheduler bawaan yang dikonfigurasi untuk berjalan setia
     ```bash
     php artisan schedule:work
     ```
+
+-   **Di Lingkungan Server Production (Otomatis Setiap Menit)**:
+    Agar pengingat otomatis berjalan terus di latar belakang tanpa memerlukan sesi terminal aktif:
+
+    -   **Server Linux (Cron Job)**:
+        Buka crontab server:
+        ```bash
+        crontab -e
+        ```
+        Tambahkan baris berikut di baris paling akhir (sesuaikan path absolut direktori proyek):
+        ```cron
+        * * * * * cd /var/www/subscription-tracker && php artisan schedule:run >> /dev/null 2>&1
+        ```
+
+    -   **Server Windows (Task Scheduler)**:
+        Buka **PowerShell sebagai Administrator** di server dan jalankan perintah satu baris berikut untuk mendaftarkan task scheduler otomatis:
+        ```powershell
+        $action = New-ScheduledTaskAction -Execute "php.exe" -Argument "artisan schedule:run" -WorkingDirectory "D:\path\to\subscription-tracker"
+        $trigger = New-ScheduledTaskTrigger -Once -At (Get-Date) -RepetitionInterval (New-TimeSpan -Minutes 1)
+        Register-ScheduledTask -TaskName "LaravelScheduler_SubscriptionTracker" -Action $action -Trigger $trigger -User "SYSTEM"
+        ```
+        *(Atau via GUI Windows Task Scheduler: Buat Task baru yang menjalankan `php artisan schedule:run` dengan trigger repetisi setiap 1 menit secara indefinite).*
+
 -   **Pengecekan Pengingat Manual (On-Demand)**:
     Anda dapat memicu pemeriksaan jatuh tempo secara instan kapan saja tanpa menunggu scheduler:
     ```bash
@@ -187,14 +210,22 @@ Sistem memiliki command scheduler bawaan yang dikonfigurasi untuk berjalan setia
 
 Jika ingin memproses antrean email atau job di latar belakang:
 
-1. Pastikan koneksi antrean di berkas `.env` menggunakan database:
+1.  Pastikan koneksi antrean di berkas `.env` menggunakan database:
     ```env
     QUEUE_CONNECTION=database
     ```
-2. Jalankan antrean worker di terminal:
-    ```bash
-    php artisan queue:work
-    ```
+
+2.  Jalankan worker antrean:
+    -   **Local Development (Terminal Manual)**:
+        ```bash
+        php artisan queue:work
+        ```
+    -   **Production (Daemon via PM2)**:
+        Gunakan berkas konfigurasi PM2 yang sudah disediakan (`ecosystem.config.cjs`):
+        ```bash
+        pm2 start ecosystem.config.cjs
+        pm2 save
+        ```
 
 ### 3. Pengujian Notifikasi & Email Lokal
 

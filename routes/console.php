@@ -8,7 +8,5 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 // Scheduler Pengingat Otomatis (UC12 / FR-006 / NFR-003: berjalan setiap menit)
-Illuminate\Support\Facades\Schedule::call(function () {
-    Illuminate\Support\Facades\Artisan::call('app:check-reminders');
-})->name('check-reminders')->everyMinute();
+Illuminate\Support\Facades\Schedule::command('app:check-reminders')->everyMinute();
 

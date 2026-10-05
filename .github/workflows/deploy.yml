@@ -95,11 +95,12 @@ jobs:
           php artisan route:cache
           php artisan view:cache
 
-          # 8. Restart / Start PM2 (Queue & Scheduler)
-          Write-Host "[7/7] Memperbarui PM2 worker (Queue & Scheduler)..."
+          # 8. Restart / Start PM2 (Queue Worker)
+          Write-Host "[7/7] Memperbarui PM2 worker (Queue)..."
           $pm2Exec = if (Get-Command "pm2" -ErrorAction SilentlyContinue) { "pm2" } else { "npx pm2" }
           try {
               $pm2List = & $pm2Exec jlist | ConvertFrom-Json
+
               $queueRunning = $pm2List | Where-Object { $_.name -eq "subscriptiontracker-queue" }
               if ($queueRunning) {
                   & $pm2Exec restart ecosystem.config.cjs --update-env
