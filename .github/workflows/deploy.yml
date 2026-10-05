@@ -102,14 +102,14 @@ jobs:
               $pm2List = & $pm2Exec jlist | ConvertFrom-Json
               $queueRunning = $pm2List | Where-Object { $_.name -eq "subscriptiontracker-queue" }
               if ($queueRunning) {
-                  & $pm2Exec restart ecosystem.config.cjs
+                  & $pm2Exec restart ecosystem.config.cjs --update-env
               } else {
                   & $pm2Exec start ecosystem.config.cjs
               }
               & $pm2Exec save
           } catch {
               Write-Host "Menjalankan PM2 restart secara langsung..."
-              & $pm2Exec restart ecosystem.config.cjs
+              & $pm2Exec restart ecosystem.config.cjs --update-env
               & $pm2Exec save
           }
 

@@ -1,3 +1,11 @@
+const path = require("path");
+const fs = require("fs");
+
+const tempDir = path.join(__dirname, "storage", "temp");
+if (!fs.existsSync(tempDir)) {
+    fs.mkdirSync(tempDir, { recursive: true });
+}
+
 module.exports = {
     apps: [
         {
@@ -9,6 +17,10 @@ module.exports = {
             autorestart: true,
             watch: false,
             max_memory_restart: "200M",
+            env: {
+                TEMP: tempDir,
+                TMP: tempDir,
+            },
         },
         {
             name: "subscriptiontracker-scheduler",
@@ -19,6 +31,10 @@ module.exports = {
             autorestart: true,
             watch: false,
             max_memory_restart: "150M",
+            env: {
+                TEMP: tempDir,
+                TMP: tempDir,
+            },
         },
     ],
 };
