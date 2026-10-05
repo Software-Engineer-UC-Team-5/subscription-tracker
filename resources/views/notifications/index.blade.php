@@ -7,8 +7,8 @@
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-5 border-b border-slate-200 gap-4">
             <div>
                 <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Riwayat Notifikasi</h1>
-                <p class="text-sm text-slate-500 mt-1">Daftar pemberitahuan pengingat tagihan dan free trial yang diproses
-                    oleh sistem (UC12 / FR-006).</p>
+                <p class="text-sm text-slate-500 mt-1">Daftar pemberitahuan pengingat tagihan dan masa uji coba gratis yang
+                    diproses oleh sistem.</p>
             </div>
             <span class="text-xs font-semibold px-3 py-1.5 rounded-full bg-slate-100 text-slate-700">
                 Total Notifikasi: {{ $notifications->count() }}

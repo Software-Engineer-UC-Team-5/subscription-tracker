@@ -7,7 +7,7 @@
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-5 border-b border-slate-200 gap-4">
             <div>
                 <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Pengaturan Pengingat (Reminders)</h1>
-                <p class="text-sm text-slate-500 mt-1">Atur jadwal pengingat sebelum tagihan autodebit diproses atau masa uji coba gratis berakhir (UC11 / FR-006).</p>
+                <p class="text-sm text-slate-500 mt-1">Atur jadwal pengingat sebelum tagihan autodebit diproses atau masa uji coba gratis berakhir.</p>
             </div>
         </div>
 

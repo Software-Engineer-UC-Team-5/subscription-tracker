@@ -18,7 +18,7 @@
             </div>
         </div>
 
-        <!-- Bilah Pencarian & Pemfilteran (FR-003 / UC09) -->
+        <!-- Bilah Pencarian & Pemfilteran -->
         <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
             <form method="GET" action="{{ route('subscriptions.index') }}"
                 class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 items-end">
@@ -87,7 +87,7 @@
             </form>
         </div>
 
-        <!-- Tabel Daftar Langganan (UC06, FR-002) -->
+        <!-- Tabel Daftar Subscription -->
         <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
             @if ($subscriptions->isEmpty())
                 <div class="py-12 px-4 text-center">

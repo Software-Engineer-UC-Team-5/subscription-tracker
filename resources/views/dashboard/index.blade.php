@@ -110,7 +110,7 @@
             </div>
         </div>
 
-        <!-- Bagian Tagihan Mendatang 7 Hari ke Depan (FR-005, NFR-002) -->
+        <!-- Bagian Tagihan Mendatang 7 Hari ke Depan -->
         <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-6">
             <div class="p-5 border-b border-slate-200 flex items-center justify-between">
                 <div>

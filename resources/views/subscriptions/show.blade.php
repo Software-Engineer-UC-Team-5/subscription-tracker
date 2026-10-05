@@ -97,7 +97,7 @@
                     </div>
                 </div>
 
-                <!-- Bagian Free Trial jika ada (FR-004) -->
+                <!-- Bagian Free Trial jika ada -->
                 @if ($subscription->freeTrial)
                     <div class="mt-6 pt-5 border-t border-slate-100 bg-amber-50/60 p-4 rounded-xl border border-amber-200/80">
                         <div class="flex items-center justify-between mb-2">
@@ -162,7 +162,7 @@
             </div>
         </div>
 
-        <!-- Daftar Pengingat Terkait (UC11) -->
+        <!-- Daftar Pengingat Terkait -->
         <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
             <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
                 <div>

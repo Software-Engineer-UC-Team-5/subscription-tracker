@@ -8,7 +8,7 @@
             <div>
                 <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Log Aktivitas (Audit Trail)</h1>
                 <p class="text-sm text-slate-500 mt-1">Catatan riwayat seluruh mutasi data dan autentikasi akun demi
-                    transparansi dan audit keamanan (NFR-004).</p>
+                    transparansi dan audit keamanan.</p>
             </div>
             <span class="text-xs font-semibold px-3 py-1.5 rounded-full bg-slate-100 text-slate-700">
                 Total Log: {{ $logs->total() }}

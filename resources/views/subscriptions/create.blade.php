@@ -114,7 +114,7 @@
                 </div>
             </div>
 
-            <!-- Bagian Free Trial (Opsional - UC10 / FR-004) -->
+            <!-- Bagian Free Trial (Opsional) -->
             <div class="bg-amber-50/50 p-6 rounded-xl border border-amber-200/70 space-y-4">
                 <div class="flex items-center gap-2">
                     <input type="checkbox" id="is_free_trial" name="is_free_trial" value="1" {{ old('is_free_trial') ? 'checked' : '' }}
