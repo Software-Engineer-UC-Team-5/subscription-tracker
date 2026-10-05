@@ -14,8 +14,8 @@
         <div>
             <label for="email" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">Alamat
                 Email</label>
-            <input type="email" id="email" name="email" value="{{ old('email', 'user@example.com') }}"
-                placeholder="nama@email.com" required autofocus
+            <input type="email" id="email" name="email" value="{{ old('email') }}" placeholder="nama@email.com" required
+                autofocus
                 class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition">
             @error('email')
                 <p class="text-xs text-rose-600 mt-1">{{ $message }}</p>
@@ -25,7 +25,7 @@
         <div>
             <label for="password" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">Kata
                 Sandi</label>
-            <input type="password" id="password" name="password" value="password" placeholder="••••••••" required
+            <input type="password" id="password" name="password" placeholder="••••••••" required
                 class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition">
             @error('password')
                 <p class="text-xs text-rose-600 mt-1">{{ $message }}</p>
