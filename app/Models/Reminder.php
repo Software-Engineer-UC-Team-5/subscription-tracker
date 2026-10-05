@@ -46,6 +46,22 @@ class Reminder extends Model
     }
 
     /**
+     * Domain method: Aktifkan pengingat.
+     */
+    public function activate(): void
+    {
+        $this->update(['is_active' => true]);
+    }
+
+    /**
+     * Domain method: Nonaktifkan pengingat.
+     */
+    public function deactivate(): void
+    {
+        $this->update(['is_active' => false]);
+    }
+
+    /**
      * Domain method: Cek apakah pengingat sudah jatuh tempo pada tanggal tertentu (default: hari ini).
      */
     public function isDue(?Carbon $onDate = null): bool
@@ -76,3 +92,4 @@ class Reminder extends Model
         return false;
     }
 }
+

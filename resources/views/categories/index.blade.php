@@ -13,6 +13,6 @@
 
     <div>
         <h3>INI HALAMAN DAFTAR KATEGORI</h3>
-        <p>Kanvas kosong siap diisi desain Google Stitch.</p>
+        <p>Kanvas kosong untuk kategori</p>
     </div>
 @endsection

@@ -6,3 +6,7 @@ use Illuminate\Support\Facades\Artisan;
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
+
+// Scheduler Pengingat Otomatis (UC12 / FR-006 / NFR-003: interval max 15 menit)
+Illuminate\Support\Facades\Schedule::command('app:check-reminders')->everyFifteenMinutes();
+

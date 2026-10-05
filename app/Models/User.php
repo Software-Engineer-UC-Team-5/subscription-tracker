@@ -59,4 +59,16 @@ class User extends Authenticatable
     {
         return $this->hasMany(ActivityLog::class);
     }
+
+    /**
+     * Menghitung jumlah notifikasi yang belum dibaca oleh pengguna.
+     *
+     * @return int
+     */
+    public function unreadNotificationsCount(): int
+    {
+        return $this->notifications()
+            ->where('status', '!=', \App\Enums\NotificationStatus::READ)
+            ->count();
+    }
 }
