@@ -16,6 +16,14 @@ jobs:
         shell: powershell
         run: |
           $ErrorActionPreference = "Stop"
+
+          # Injeksi Path Laragon (PHP & Composer) ke sesi runner agar selalu terbaca
+          if (Test-Path "C:\laragon\bin\php") {
+              $phpDir = (Get-ChildItem "C:\laragon\bin\php" | Sort-Object Name -Descending | Select-Object -First 1).FullName
+              $composerDir = "C:\laragon\bin\composer"
+              $env:Path = "$phpDir;$composerDir;$env:Path"
+          }
+
           $targetDir = "C:\laragon\www\subscription-tracker"
 
           Write-Host "=========================================="
