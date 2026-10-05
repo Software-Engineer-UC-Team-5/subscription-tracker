@@ -11,7 +11,7 @@
                     Dashboard & Analisis Pengeluaran
                 </h1>
                 <p class="text-sm text-slate-500 mt-1">
-                    Ringkasan pemantauan seluruh subscription aktif dan kalkulasi estimasi pengeluaran Anda.
+                    Ringkasan pemantauan seluruh subscription aktif dan kalkulasi estimasi pengeluaran Anda
                 </p>
             </div>
             <div class="flex items-center gap-3">

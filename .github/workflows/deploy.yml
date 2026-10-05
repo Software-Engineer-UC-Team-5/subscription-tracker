@@ -1,0 +1,87 @@
+name: Deploy to Windows Server
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: # Memungkinkan trigger manual dari tab Actions di GitHub
+
+jobs:
+  deploy:
+    name: Deploy to Laragon Windows 11
+    runs-on: [self-hosted, Windows, X64]
+
+    steps:
+      - name: Deploy & Refresh Application
+        shell: powershell
+        run: |
+          $ErrorActionPreference = "Stop"
+          $targetDir = "C:\laragon\www\subscription-tracker"
+
+          Write-Host "=========================================="
+          Write-Host "  Starting Deployment on Windows Server   "
+          Write-Host "=========================================="
+
+          # 1. Pastikan folder project ada di Laragon www
+          if (-not (Test-Path $targetDir)) {
+              Write-Host "[1/7] Target folder belum ada. Melakukan git clone..."
+              git clone https://github.com/Software-Engineer-UC-Team-5/subscription-tracker.git $targetDir
+          }
+
+          Set-Location -Path $targetDir
+          Write-Host "[1/7] Direktori kerja: $targetDir"
+
+          # 2. Tarik kode terbaru dari GitHub
+          Write-Host "[2/7] Mengambil perubahan terbaru dari branch main..."
+          git fetch origin main
+          git checkout main
+          git reset --hard origin/main
+
+          # 3. Cek file .env
+          if (-not (Test-Path "$targetDir\.env")) {
+              Write-Warning "[Perhatian] File .env tidak ditemukan. Menyalin dari .env.example..."
+              Copy-Item "$targetDir\.env.example" "$targetDir\.env"
+              php artisan key:generate --force
+          }
+
+          # 4. Install dependensi Composer
+          Write-Host "[3/7] Menginstall dependensi Composer (Production)..."
+          composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction
+
+          # 5. Build Frontend Assets dengan Vite
+          Write-Host "[4/7] Menginstall dependensi NPM & Build Assets (Vite)..."
+          npm install --no-audit --prefer-offline
+          npm run build
+
+          # 6. Database Migration & Link Storage
+          Write-Host "[5/7] Menjalankan migrasi database & storage link..."
+          php artisan migrate --force
+          php artisan storage:link 2>$null
+
+          # 7. Optimasi Caching Laravel
+          Write-Host "[6/7] Mengoptimalkan cache Laravel..."
+          php artisan optimize:clear
+          php artisan config:cache
+          php artisan route:cache
+          php artisan view:cache
+
+          # 8. Restart / Start PM2 (Queue & Scheduler)
+          Write-Host "[7/7] Memperbarui PM2 worker (Queue & Scheduler)..."
+          try {
+              $pm2List = pm2 jlist | ConvertFrom-Json
+              $queueRunning = $pm2List | Where-Object { $_.name -eq "subscriptiontracker-queue" }
+              if ($queueRunning) {
+                  pm2 restart ecosystem.config.cjs
+              } else {
+                  pm2 start ecosystem.config.cjs
+              }
+              pm2 save
+          } catch {
+              Write-Host "Menjalankan PM2 restart secara langsung..."
+              pm2 restart ecosystem.config.cjs
+              pm2 save
+          }
+
+          Write-Host "=========================================="
+          Write-Host " Deployment Selesai dan Berhasil!         "
+          Write-Host "=========================================="
