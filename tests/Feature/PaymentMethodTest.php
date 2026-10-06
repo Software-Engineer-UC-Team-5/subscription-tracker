@@ -160,43 +160,30 @@ class PaymentMethodTest extends TestCase
     }
 
     /**
-     * Pengujian popup menerima tujuan redirect setelah tambah atau edit dan pesan sukses tetap tersimpan.
+     * Pengujian submit biasa mengembalikan error, isian, dan pilihan edit setelah redirect validasi.
      */
-    public function test_modal_can_create_and_update_without_consuming_success_messages(): void
-    {
-        $user = User::factory()->create();
-        $this->actingAs($user);
-
-        $this->get('/payment-methods')->assertOk()
-            ->assertSee('id="payment-method-dialog"', false)
-            ->assertSee('aria-labelledby="payment-method-title"', false);
-
-        $this->postJson('/payment-methods', ['name' => 'BCA Debit'])
-            ->assertOk()->assertJsonPath('redirect', route('payment-methods.index'))
-            ->assertSessionHas('success', 'Metode pembayaran berhasil ditambahkan.');
-
-        $paymentMethod = $user->paymentMethods()->sole();
-        $this->putJson("/payment-methods/{$paymentMethod->id}", ['name' => 'Jenius'])
-            ->assertOk()->assertJsonPath('redirect', route('payment-methods.index'))
-            ->assertSessionHas('success', 'Metode pembayaran berhasil diperbarui.');
-
-        $this->assertSame('Jenius', $paymentMethod->fresh()->name);
-    }
-
-    /**
-     * Pengujian popup menerima error validasi JSON saat nama metode pembayaran sudah digunakan.
-     */
-    public function test_modal_receives_inline_errors_for_duplicate_aliases(): void
+    public function test_modal_preserves_input_and_edit_context_after_validation_redirect(): void
     {
         $user = User::factory()->create();
         $paymentMethod = $user->paymentMethods()->create(['name' => 'BCA Debit']);
         $user->paymentMethods()->create(['name' => 'GoPay']);
         $this->actingAs($user);
 
-        $this->postJson('/payment-methods', ['name' => 'GoPay'])
-            ->assertUnprocessable()->assertJsonValidationErrors('name');
-        $this->putJson("/payment-methods/{$paymentMethod->id}", ['name' => 'GoPay'])
-            ->assertUnprocessable()->assertJsonValidationErrors('name');
+        $this->from('/payment-methods')->post('/payment-methods', ['name' => 'GoPay', '_method' => 'POST'])
+            ->assertRedirect('/payment-methods')->assertSessionHasErrors('name')->assertSessionHasInput('name', 'GoPay');
+        $this->withCookie(config('session.cookie'), session()->getId())->get('/payment-methods')
+            ->assertOk()->assertSee('Tambah Metode Pembayaran')->assertSee('value="GoPay"', false)
+            ->assertSee('Nama metode pembayaran sudah digunakan di akun Anda.');
+
+        $this->from('/payment-methods')->post("/payment-methods/{$paymentMethod->id}", [
+            'name' => 'GoPay',
+            '_method' => 'PUT',
+            'payment_method_id' => $paymentMethod->id,
+        ])->assertRedirect('/payment-methods')->assertSessionHasErrors('name')
+            ->assertSessionHasInput('payment_method_id', $paymentMethod->id);
+        $this->withCookie(config('session.cookie'), session()->getId())->get('/payment-methods')
+            ->assertOk()->assertSee('Edit Metode Pembayaran')->assertSee('value="GoPay"', false)
+            ->assertSee('Nama metode pembayaran sudah digunakan di akun Anda.');
 
         $this->assertSame(2, $user->paymentMethods()->count());
         $this->assertSame('BCA Debit', $paymentMethod->fresh()->name);
