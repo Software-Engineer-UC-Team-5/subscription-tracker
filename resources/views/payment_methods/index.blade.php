@@ -54,10 +54,11 @@
                                             class="font-medium text-blue-700 hover:underline">Edit</a>
                                         <!-- Minta konfirmasi sebelum mengirim permintaan hapus dengan token CSRF -->
                                         <form action="{{ route('payment-methods.destroy', $paymentMethod) }}" method="POST"
-                                            onsubmit="return confirm('Hapus metode pembayaran ini?');">
+                                            data-payment-method-delete="{{ $paymentMethod->name }}">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit"
+                                                aria-haspopup="dialog" aria-controls="payment-method-delete-dialog"
                                                 aria-label="Hapus metode pembayaran {{ $paymentMethod->name }}"
                                                 class="font-medium text-rose-700 hover:underline">Hapus</button>
                                         </form>
@@ -105,6 +106,27 @@
         </form>
     </dialog>
 
+    <!-- Konfirmasi hapus menampilkan metode yang dipilih sebelum formulir DELETE dikirim -->
+    <dialog id="payment-method-delete-dialog" aria-labelledby="payment-method-delete-title"
+        aria-describedby="payment-method-delete-description"
+        class="m-auto w-[90vw] max-w-lg max-h-[90dvh] overflow-y-auto p-6 rounded-xl border border-slate-200 bg-white shadow-xl backdrop:bg-slate-900/40">
+        <h2 id="payment-method-delete-title" class="text-xl font-bold text-slate-900 mb-3">Hapus Metode Pembayaran?</h2>
+        <p id="payment-method-delete-description" class="text-sm text-slate-600 mb-6">
+            Metode pembayaran <span id="payment-method-delete-name" class="font-medium text-slate-900 break-words"></span>
+            akan dihapus.
+        </p>
+        <form method="dialog" class="flex items-center justify-end gap-3">
+            <button type="submit" id="payment-method-delete-cancel" autofocus
+                class="px-4 py-2 text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 border border-slate-300 rounded-lg transition disabled:opacity-50">
+                Batal
+            </button>
+            <button type="button" id="payment-method-delete-confirm"
+                class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-sm font-medium rounded-lg transition disabled:opacity-50 disabled:cursor-wait">
+                Hapus
+            </button>
+        </form>
+    </dialog>
+
     <script>
         {
             // Ambil elemen popup dan formulir tanpa menambahkan variabel ke lingkup global.
@@ -114,6 +136,43 @@
             const error = document.getElementById('payment-method-error');
             const cancel = document.getElementById('payment-method-cancel');
             const submit = form.querySelector('[type="submit"]');
+            const deleteDialog = document.getElementById('payment-method-delete-dialog');
+            const deleteName = document.getElementById('payment-method-delete-name');
+            const deleteCancel = document.getElementById('payment-method-delete-cancel');
+            const deleteConfirm = document.getElementById('payment-method-delete-confirm');
+            let deleteForm;
+
+            // Pasang konfirmasi pada setiap formulir hapus di daftar.
+            document.querySelectorAll('[data-payment-method-delete]').forEach(targetForm => {
+                /**
+                 * Tunda penghapusan dan tampilkan nama metode pembayaran di popup konfirmasi.
+                 */
+                targetForm.addEventListener('submit', event => {
+                    event.preventDefault();
+                    deleteForm = targetForm;
+                    // textContent memastikan nama metode pembayaran tidak ditafsirkan sebagai HTML.
+                    deleteName.textContent = targetForm.dataset.paymentMethodDelete;
+                    deleteDialog.showModal();
+                });
+            });
+
+            /**
+             * Kirim formulir DELETE yang dipilih setelah pengguna mengonfirmasi penghapusan.
+             */
+            deleteConfirm.addEventListener('click', () => {
+                if (!deleteForm || deleteConfirm.disabled) return;
+                deleteConfirm.disabled = deleteCancel.disabled = true;
+                deleteConfirm.textContent = 'Menghapus…';
+                // submit() mengirim formulir beserta token CSRF tanpa membuka konfirmasi lagi.
+                deleteForm.submit();
+            });
+
+            /**
+             * Cegah Escape menutup konfirmasi selama permintaan hapus masih berlangsung.
+             */
+            deleteDialog.addEventListener('cancel', event => {
+                if (deleteConfirm.disabled) event.preventDefault();
+            });
 
             // Pasang pembuka popup pada tautan tambah dan edit di daftar.
             document.querySelectorAll('[data-payment-method-action]').forEach(link => {
@@ -151,7 +210,7 @@
             });
 
             /**
-             * Kirim formulir sebagai permintaan JSON dan tampilkan error tanpa menutup popup.
+             * Kirim formulir dan terima respons JSON; tampilkan error tanpa menutup popup.
              */
             form.addEventListener('submit', async event => {
                 event.preventDefault();
