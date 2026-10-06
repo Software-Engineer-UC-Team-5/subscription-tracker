@@ -50,4 +50,12 @@ class PaymentMethodRepository
     {
         return $paymentMethod->delete();
     }
+
+    /**
+     * Periksa apakah metode pembayaran masih digunakan oleh langganan.
+     */
+    public function hasSubscriptions(PaymentMethod $paymentMethod): bool
+    {
+        return $paymentMethod->subscriptions()->exists();
+    }
 }
