@@ -10,7 +10,7 @@
             <p class="text-sm text-slate-600 mt-1">Kelola metode pembayaran.</p>
         </div>
         <a href="{{ route('payment-methods.create') }}"
-            data-payment-method-action="{{ route('payment-methods.store') }}"
+            data-payment-method-action="{{ route('payment-methods.store', [], false) }}"
             aria-haspopup="dialog" aria-controls="payment-method-dialog"
             class="inline-flex items-center px-4 py-2 bg-primary hover:bg-primary-hover text-white text-sm font-medium rounded-lg shadow-sm transition">
             + Tambah Metode
@@ -47,7 +47,7 @@
                                 <td class="px-6 py-4">
                                     <div class="flex items-center justify-end gap-4">
                                         <a href="{{ route('payment-methods.edit', $paymentMethod) }}"
-                                            data-payment-method-action="{{ route('payment-methods.update', $paymentMethod) }}"
+                                            data-payment-method-action="{{ route('payment-methods.update', $paymentMethod, false) }}"
                                             data-payment-method-id="{{ $paymentMethod->id }}"
                                             data-payment-method-name="{{ $paymentMethod->name }}"
                                             aria-haspopup="dialog" aria-controls="payment-method-dialog"
@@ -194,6 +194,7 @@
                     if (!dialog.showModal || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
                     event.preventDefault();
                     form.reset();
+                    // Path relatif mengikuti protokol halaman, termasuk HTTPS di belakang proxy.
                     form.action = link.dataset.paymentMethodAction;
                     const editing = link.hasAttribute('data-payment-method-name');
                     form.elements._method.value = editing ? 'PUT' : 'POST';
