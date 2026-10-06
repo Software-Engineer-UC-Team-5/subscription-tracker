@@ -48,6 +48,7 @@
                                     <div class="flex items-center justify-end gap-4">
                                         <a href="{{ route('payment-methods.edit', $paymentMethod) }}"
                                             data-payment-method-action="{{ route('payment-methods.update', $paymentMethod) }}"
+                                            data-payment-method-id="{{ $paymentMethod->id }}"
                                             data-payment-method-name="{{ $paymentMethod->name }}"
                                             aria-haspopup="dialog" aria-controls="payment-method-dialog"
                                             aria-label="Edit metode pembayaran {{ $paymentMethod->name }}"
@@ -75,22 +76,31 @@
     <!-- Popup digunakan bersama untuk tambah dan edit; input hanya meminta nama metode pembayaran -->
     <dialog id="payment-method-dialog" aria-labelledby="payment-method-title"
         class="m-auto w-[90vw] max-w-lg max-h-[90dvh] overflow-y-auto p-6 rounded-xl border border-slate-200 bg-white shadow-xl backdrop:bg-slate-900/40">
-        <h2 id="payment-method-title" class="text-xl font-bold text-slate-900 mb-5">Tambah Metode Pembayaran</h2>
-        <form id="payment-method-form" action="{{ route('payment-methods.store') }}" method="POST" class="space-y-5">
+        <h2 id="payment-method-title" class="text-xl font-bold text-slate-900 mb-5">
+            {{ $editingPaymentMethod ? 'Edit Metode Pembayaran' : 'Tambah Metode Pembayaran' }}
+        </h2>
+        <form id="payment-method-form"
+            action="{{ $editingPaymentMethod ? route('payment-methods.update', $editingPaymentMethod) : route('payment-methods.store') }}"
+            method="POST" class="space-y-5">
             @csrf
-            <input type="hidden" name="_method" value="POST">
+            <input type="hidden" name="_method" value="{{ $editingPaymentMethod ? 'PUT' : 'POST' }}">
+            <!-- Simpan pilihan edit agar popup yang sama dapat dibuka kembali setelah validasi gagal -->
+            <input type="hidden" name="payment_method_id" value="{{ $editingPaymentMethod?->id }}">
 
             <div>
                 <label for="payment-method-name" class="block text-sm font-medium text-slate-700 mb-2">
                     Nama metode pembayaran
                 </label>
                 <input type="text" id="payment-method-name" name="name" required maxlength="100" autofocus
+                    value="{{ is_string(old('name')) ? old('name') : '' }}"
                     placeholder="Contoh: BCA Debit" aria-describedby="payment-method-help payment-method-error"
+                    @error('name') aria-invalid="true" @enderror
                     class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                 <p id="payment-method-help" class="mt-2 text-sm text-slate-600">
                     Jangan masukkan nomor kartu, CVV, atau PIN.
                 </p>
-                <p id="payment-method-error" role="alert" hidden class="mt-2 text-sm text-rose-700"></p>
+                <p id="payment-method-error" role="alert" @unless($errors->has('name')) hidden @endunless
+                    class="mt-2 text-sm text-rose-700">@error('name') {{ $message }} @enderror</p>
             </div>
 
             <div class="flex items-center justify-end gap-3">
@@ -187,6 +197,7 @@
                     form.action = link.dataset.paymentMethodAction;
                     const editing = link.hasAttribute('data-payment-method-name');
                     form.elements._method.value = editing ? 'PUT' : 'POST';
+                    form.elements.payment_method_id.value = link.dataset.paymentMethodId || '';
                     nameInput.value = link.dataset.paymentMethodName || '';
                     document.getElementById('payment-method-title').textContent = editing
                         ? 'Edit Metode Pembayaran' : 'Tambah Metode Pembayaran';
@@ -210,46 +221,21 @@
             });
 
             /**
-             * Kirim formulir dan terima respons JSON; tampilkan error tanpa menutup popup.
+             * Cegah pengiriman ganda saat browser mengirim formulir dan memuat ulang halaman.
              */
-            form.addEventListener('submit', async event => {
-                event.preventDefault();
-                // Nonaktifkan tombol selama penyimpanan untuk mencegah pengiriman ganda.
-                if (submit.disabled) return;
+            form.addEventListener('submit', event => {
+                if (submit.disabled) {
+                    event.preventDefault();
+                    return;
+                }
                 submit.disabled = cancel.disabled = true;
                 submit.textContent = 'Menyimpan…';
-                error.hidden = true;
-                nameInput.removeAttribute('aria-invalid');
-
-                try {
-                    // FormData menyertakan token CSRF dan _method untuk membedakan tambah dari edit.
-                    const response = await fetch(form.action, {
-                        method: 'POST',
-                        headers: { 'Accept': 'application/json' },
-                        body: new FormData(form),
-                    });
-                    const data = await response.json();
-                    if (response.ok) {
-                        // Muat daftar agar data terbaru dan pesan sukses dari sesi terlihat.
-                        window.location.assign(data.redirect);
-                        return;
-                    }
-                    if (response.status === 422 && data.errors?.name) {
-                        error.textContent = data.errors.name[0];
-                        nameInput.setAttribute('aria-invalid', 'true');
-                    } else {
-                        error.textContent = 'Tidak dapat menyimpan. Muat ulang halaman, lalu coba lagi.';
-                    }
-                } catch {
-                    error.textContent = 'Tidak dapat menyimpan. Periksa koneksi Anda, lalu coba lagi.';
-                }
-
-                // Izinkan perbaikan input dan percobaan ulang setelah penyimpanan gagal.
-                submit.disabled = cancel.disabled = false;
-                submit.textContent = 'Simpan';
-                error.hidden = false;
-                nameInput.focus();
             });
+
+            // Laravel mengembalikan error dan isian lewat sesi; buka lagi popup setelah redirect validasi.
+            @if ($errors->has('name'))
+                dialog.showModal();
+            @endif
         }
     </script>
 @endsection

@@ -7,7 +7,6 @@ use App\Http\Requests\UpdatePaymentMethodRequest;
 use App\Models\PaymentMethod;
 use App\Repositories\PaymentMethodRepository;
 use App\Services\PaymentMethodService;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -33,7 +32,10 @@ class PaymentMethodController extends Controller
     {
         $paymentMethods = $this->paymentMethodRepository->getByUser($request->user()->id);
 
-        return view('payment_methods.index', compact('paymentMethods'));
+        // Pulihkan formulir edit yang gagal validasi hanya dari metode pembayaran milik pengguna.
+        $editingPaymentMethod = $paymentMethods->firstWhere('id', $request->old('payment_method_id'));
+
+        return view('payment_methods.index', compact('paymentMethods', 'editingPaymentMethod'));
     }
 
     /**
@@ -45,19 +47,14 @@ class PaymentMethodController extends Controller
     }
 
     /**
-     * Simpan metode pembayaran baru dan kembalikan redirect atau JSON untuk popup.
+     * Simpan metode pembayaran baru dan arahkan kembali ke daftar dengan pesan sukses.
      */
-    public function store(StorePaymentMethodRequest $request): RedirectResponse|JsonResponse
+    public function store(StorePaymentMethodRequest $request): RedirectResponse
     {
         $this->paymentMethodService->create($request->user()->id, $request->validated());
 
-        // Simpan pesan sukses di sesi agar tampil setelah popup mengarahkan ke daftar.
-        $response = redirect()->route('payment-methods.index')
+        return redirect()->route('payment-methods.index')
             ->with('success', 'Metode pembayaran berhasil ditambahkan.');
-
-        return $request->expectsJson()
-            ? response()->json(['redirect' => $response->getTargetUrl()])
-            : $response;
     }
 
     /**
@@ -71,19 +68,14 @@ class PaymentMethodController extends Controller
     }
 
     /**
-     * Perbarui metode pembayaran dan kembalikan redirect atau JSON untuk popup.
+     * Perbarui metode pembayaran dan arahkan kembali ke daftar dengan pesan sukses.
      */
-    public function update(UpdatePaymentMethodRequest $request, PaymentMethod $paymentMethod): RedirectResponse|JsonResponse
+    public function update(UpdatePaymentMethodRequest $request, PaymentMethod $paymentMethod): RedirectResponse
     {
         $this->paymentMethodService->update($paymentMethod, $request->user()->id, $request->validated());
 
-        // Respons JSON menyertakan tujuan redirect tanpa mengambil halaman daftar terlebih dahulu.
-        $response = redirect()->route('payment-methods.index')
+        return redirect()->route('payment-methods.index')
             ->with('success', 'Metode pembayaran berhasil diperbarui.');
-
-        return $request->expectsJson()
-            ? response()->json(['redirect' => $response->getTargetUrl()])
-            : $response;
     }
 
     /**
