@@ -164,7 +164,7 @@ Seluruh rute aplikasi telah terdaftar aktif tanpa status 404:
 
 ---
 
-## 08. PANDUAN PENGINGAT OTOMATIS (SCHEDULER, QUEUE & NOTIFIKASI)
+## 08. PANDUAN PENGINGAT OTOMATIS (TASK SCHEDULER & NOTIFIKASI)
 
 Sistem Subscription Tracker dilengkapi fungsionalitas otomatis untuk memeriksa jatuh tempo autodebit dan batas akhir masa _free trial_ (FR-006 / UC11 / UC12):
 
@@ -206,28 +206,7 @@ Sistem memiliki command scheduler bawaan yang dikonfigurasi untuk berjalan setia
     php artisan app:check-reminders
     ```
 
-### 2. Menjalankan Queue Worker (Pemrosesan Latar Belakang)
-
-Jika ingin memproses antrean email atau job di latar belakang:
-
-1.  Pastikan koneksi antrean di berkas `.env` menggunakan database:
-    ```env
-    QUEUE_CONNECTION=database
-    ```
-
-2.  Jalankan worker antrean:
-    -   **Local Development (Terminal Manual)**:
-        ```bash
-        php artisan queue:work
-        ```
-    -   **Production (Daemon via PM2)**:
-        Gunakan berkas konfigurasi PM2 yang sudah disediakan (`ecosystem.config.cjs`):
-        ```bash
-        pm2 start ecosystem.config.cjs
-        pm2 save
-        ```
-
-### 3. Pengujian Notifikasi & Email Lokal
+### 2. Pengujian Notifikasi & Email Lokal
 
 Untuk menguji pengiriman notifikasi pengingat secara lokal:
 
