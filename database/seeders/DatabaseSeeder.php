@@ -15,6 +15,7 @@ use App\Models\PaymentMethod;
 use App\Models\Reminder;
 use App\Models\Subscription;
 use App\Models\User;
+use App\Repositories\CategoryRepository;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -201,5 +202,8 @@ class DatabaseSeeder extends Seeder
             entityId: $subYoutube->id,
             description: "Menambahkan langganan dengan masa Free Trial: {$subYoutube->name}"
         );
+
+        // Kategori demo dan referensi langganannya menggunakan salinan milik akun demo.
+        app(CategoryRepository::class)->copyDefaultsForUser($user->id);
     }
 }

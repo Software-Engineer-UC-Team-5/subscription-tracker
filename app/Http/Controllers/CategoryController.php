@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreCategoryRequest;
 use App\Http\Requests\UpdateCategoryRequest;
 use App\Models\Category;
+use App\Repositories\CategoryRepository;
+use App\Services\CategoryService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -15,12 +17,26 @@ use Illuminate\View\View;
 class CategoryController extends Controller
 {
     /**
+     * Siapkan repository dan service untuk pengelolaan kategori.
+     */
+    public function __construct(
+        protected CategoryRepository $categoryRepository,
+        protected CategoryService $categoryService
+    ) {
+    }
+
+    /**
      * Tampilkan halaman daftar kategori.
      */
     public function index(Request $request): View
     {
-        // TODO: Ambil daftar kategori dari database (kategori sistem + kategori user)
-        return view('categories.index');
+        $categories = $this->categoryRepository->getAvailableForUser($request->user()->id);
+
+        // Pulihkan pilihan edit hanya dari kategori milik akun aktif.
+        $editingCategory = $categories->where('user_id', $request->user()->id)
+            ->firstWhere('id', $request->old('category_id'));
+
+        return view('categories.index', compact('categories', 'editingCategory'));
     }
 
     /**
@@ -28,7 +44,6 @@ class CategoryController extends Controller
      */
     public function create(): View
     {
-        // TODO: Tampilkan view formulir tambah kategori
         return view('categories.create');
     }
 
@@ -37,7 +52,8 @@ class CategoryController extends Controller
      */
     public function store(StoreCategoryRequest $request): RedirectResponse
     {
-        // TODO: Simpan data kategori baru ke database via CategoryRepository / Model
+        $this->categoryService->create($request->user()->id, $request->validated());
+
         return redirect()->route('categories.index')
             ->with('success', 'Kategori berhasil ditambahkan.');
     }
@@ -47,7 +63,8 @@ class CategoryController extends Controller
      */
     public function edit(Category $category): View
     {
-        // TODO: Tampilkan view edit kategori dengan data $category
+        $this->categoryService->ensureOwnership($category, auth()->id());
+
         return view('categories.edit', compact('category'));
     }
 
@@ -56,7 +73,8 @@ class CategoryController extends Controller
      */
     public function update(UpdateCategoryRequest $request, Category $category): RedirectResponse
     {
-        // TODO: Perbarui data kategori di database
+        $this->categoryService->update($category, $request->user()->id, $request->validated());
+
         return redirect()->route('categories.index')
             ->with('success', 'Kategori berhasil diperbarui.');
     }
@@ -66,7 +84,8 @@ class CategoryController extends Controller
      */
     public function destroy(Category $category): RedirectResponse
     {
-        // TODO: Hapus kategori kustom milik pengguna
+        $this->categoryService->delete($category, auth()->id());
+
         return redirect()->route('categories.index')
             ->with('success', 'Kategori berhasil dihapus.');
     }
