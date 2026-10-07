@@ -73,12 +73,14 @@
                         <label class="block text-xs font-semibold text-slate-700 mb-1">Waktu Pemberitahuan (H- Hari) <span class="text-rose-500">*</span></label>
                         <select name="notify_before_days" required
                             class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                            <option value="0" {{ (string) old('notify_before_days', '3') === '0' ? 'selected' : '' }}>Hari H (Saat Tanggal Tagihan)</option>
                             <option value="1" {{ old('notify_before_days', 3) == 1 ? 'selected' : '' }}>H-1 Hari Sebelumnya</option>
                             <option value="2" {{ old('notify_before_days', 3) == 2 ? 'selected' : '' }}>H-2 Hari Sebelumnya</option>
                             <option value="3" {{ old('notify_before_days', 3) == 3 ? 'selected' : '' }}>H-3 Hari Sebelumnya (Rekomendasi)</option>
                             <option value="5" {{ old('notify_before_days', 3) == 5 ? 'selected' : '' }}>H-5 Hari Sebelumnya</option>
                             <option value="7" {{ old('notify_before_days', 3) == 7 ? 'selected' : '' }}>H-7 Hari (1 Minggu Sebelumnya)</option>
                         </select>
+                        <p class="text-[11px] text-slate-400 mt-1">Notifikasi email akan dikirim tepat 1 kali pada jadwal ini per siklus penagihan.</p>
                     </div>
 
                     <div class="flex items-center gap-2 pt-2">

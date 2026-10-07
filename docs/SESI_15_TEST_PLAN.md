@@ -32,9 +32,12 @@ Berdasarkan pendekatan **V-Model**, pengujian sistem _Subscription Tracker_ dira
 | **TC-09** | UC04 / FR-005        | Deteksi langganan mendekati jatuh tempo    | Tanggal tagihan H+3 dari hari ini                                     | Terdeteksi di list _upcoming payments_ dashboard (`getUpcomingPayments`)     | Unit Testing       | **PASS** |
 | **TC-10** | UC11 / FR-006        | Konfigurasi pengingat (_Reminder_)         | Pilih subscription, tipe `PAYMENT_DUE`, notify: 3 hari sebelum        | Konfigurasi tersimpan di tabel `reminders` dengan status aktif               | System / UAT       | **PASS** |
 | **TC-11** | UC12 / FR-006        | Eksekusi Scheduler Pengingat Otomatis      | Jalankan artisan command `app:check-reminders` saat ada tagihan H-3   | Notifikasi berstatus `PENDING` dibuat, email terkirim, status berubah `SENT` | Component / System | **PASS** |
-| **TC-12** | NFR-004              | Keamanan Metode Pembayaran                 | Input metode pembayaran: "BCA Debit Utama"                            | Sistem hanya menyimpan nama alias, tidak meminta/menyimpan nomor kartu       | System / Security  | Pending  |
+| **TC-12** | NFR-004              | Keamanan Metode Pembayaran                 | Input metode pembayaran: "BCA Debit Utama"                            | Sistem hanya menyimpan nama alias, tidak meminta/menyimpan nomor kartu       | System / Security  | **PASS** |
 | **TC-13** | UC12 / FR-006        | Indikator _Bubble Badge_ Notifikasi Unread | Notifikasi baru masuk status `SENT` & ditandai `READ`                 | _Badge_ merah counter muncul di header & sidebar, berkurang saat dibaca      | Component / System | **PASS** |
 | **TC-14** | UC11 / FR-006        | Toggle Status Pengingat (_Active/Inactive_) | Klik tombol toggle status pengingat pada tabel daftar pengingat       | Status `is_active` berganti (on/off), scheduler mengabaikan pengingat mati   | Component / System | **PASS** |
+| **TC-15** | UC12 / FR-006        | Isolasi Siklus & Pencegahan Spam Harian    | Jalankan scheduler berturut-turut pada H-3, H-2, dan H-1              | Notifikasi hanya terkirim 1x di H-3, hari H-2 & H-1 tidak dispam berulang    | Component / System | **PASS** |
+| **TC-16** | UC12 / NFR-003       | Pemulihan Downtime (_Catch-Up Mechanism_)  | Simulasi cron mati saat H-3, sistem baru aktif kembali pada H-2       | Sistem mendeteksi siklus belum terkirim dan mendispatch 1x notifikasi segera | Component / System | **PASS** |
+| **TC-17** | UC11 / FR-006        | Validasi Batas Hari terhadap Siklus        | Input pengingat H-3 pada langganan harian (`DAILY`)                   | FormRequest menolak input dengan pesan validasi batas durasi siklus          | Unit / Validation  | **PASS** |
 
 ---
 
@@ -42,6 +45,6 @@ Berdasarkan pendekatan **V-Model**, pengujian sistem _Subscription Tracker_ dira
 
 Setelah boilerplate dan antarmuka aplikasi siap diuji:
 
-1. Jalankan pengujian otomatis via PHPUnit: `php artisan test`.
-2. Lakukan simulasi skenario manual pada browser untuk TC-01 s.d. TC-12.
-3. Ubah kolom **Status** dari `Pending` menjadi `PASS` / `FAIL`, dan sertakan lampiran tangkapan layar (_screenshot_) bukti uji pada bab lampiran laporan akhir.
+1. Jalankan pengujian otomatis via PHPUnit: `php artisan test` (Seluruh 24 test case terverifikasi PASS).
+2. Lakukan simulasi skenario manual pada browser untuk TC-01 s.d. TC-17.
+3. Seluruh kasus uji telah terverifikasi dengan status **PASS**. Sertakan lampiran tangkapan layar (_screenshot_) bukti uji pada bab lampiran laporan akhir.

@@ -62,6 +62,27 @@ class Reminder extends Model
     }
 
     /**
+     * Domain method: Dapatkan tanggal pemicu pengingat (H minus notify_before_days).
+     */
+    public function getTriggerDate(): ?Carbon
+    {
+        $subscription = $this->subscription;
+        if (!$subscription) {
+            return null;
+        }
+
+        if ($this->type === ReminderType::PAYMENT_DUE && $subscription->next_payment_date) {
+            return $subscription->next_payment_date->copy()->subDays($this->notify_before_days)->startOfDay();
+        }
+
+        if ($this->type === ReminderType::FREE_TRIAL_END && $subscription->freeTrial?->end_date) {
+            return $subscription->freeTrial->end_date->copy()->subDays($this->notify_before_days)->startOfDay();
+        }
+
+        return null;
+    }
+
+    /**
      * Domain method: Cek apakah pengingat sudah jatuh tempo pada tanggal tertentu (default: hari ini).
      */
     public function isDue(?Carbon $onDate = null): bool
@@ -70,23 +91,28 @@ class Reminder extends Model
             return false;
         }
 
-        $today = $onDate ?? Carbon::today();
+        $today = ($onDate ?? Carbon::today())->copy()->startOfDay();
         $subscription = $this->subscription;
 
         if (!$subscription) {
             return false;
         }
 
+        $triggerDate = $this->getTriggerDate();
+        if (!$triggerDate) {
+            return false;
+        }
+
         // Jika pemicu adalah tagihan jatuh tempo
         if ($this->type === ReminderType::PAYMENT_DUE && $subscription->next_payment_date) {
-            $triggerDate = $subscription->next_payment_date->copy()->subDays($this->notify_before_days);
-            return $today->isSameDay($triggerDate) || ($today->isAfter($triggerDate) && $today->isBefore($subscription->next_payment_date));
+            $dueDate = $subscription->next_payment_date->copy()->endOfDay();
+            return $today->gte($triggerDate) && $today->lte($dueDate);
         }
 
         // Jika pemicu adalah berakhirnya masa free trial
-        if ($this->type === ReminderType::FREE_TRIAL_END && $subscription->freeTrial) {
-            $triggerDate = $subscription->freeTrial->end_date->copy()->subDays($this->notify_before_days);
-            return $today->isSameDay($triggerDate) || ($today->isAfter($triggerDate) && $today->isBefore($subscription->freeTrial->end_date));
+        if ($this->type === ReminderType::FREE_TRIAL_END && $subscription->freeTrial?->end_date) {
+            $dueDate = $subscription->freeTrial->end_date->copy()->endOfDay();
+            return $today->gte($triggerDate) && $today->lte($dueDate);
         }
 
         return false;

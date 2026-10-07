@@ -38,12 +38,14 @@ class NotificationService
 
         foreach ($activeReminders as $reminder) {
             if ($reminder->isDue()) {
-                // Cek apakah notifikasi untuk reminder ini sudah pernah dibuat hari ini (mencegah duplikasi spam)
-                $alreadyCreatedToday = Notification::where('reminder_id', $reminder->id)
-                    ->whereDate('created_at', today())
+                $triggerDate = $reminder->getTriggerDate();
+
+                // Cek apakah notifikasi untuk reminder ini sudah pernah dibuat pada siklus penagihan ini (sejak trigger date)
+                $alreadySentForCycle = Notification::where('reminder_id', $reminder->id)
+                    ->where('created_at', '>=', $triggerDate ? $triggerDate->copy()->startOfDay() : today())
                     ->exists();
 
-                if (!$alreadyCreatedToday) {
+                if (!$alreadySentForCycle) {
                     $notification = $this->createNotification($reminder->id);
                     $this->sendNotification($notification);
                     $processed[] = $notification;
