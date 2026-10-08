@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\ActivityLog;
 use App\Models\User;
+use App\Repositories\CategoryRepository;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\View\View;
 
@@ -15,6 +17,13 @@ use Illuminate\View\View;
  */
 class AuthController extends Controller
 {
+    /**
+     * Siapkan repository untuk mengisi kategori awal milik akun baru.
+     */
+    public function __construct(protected CategoryRepository $categoryRepository)
+    {
+    }
+
     /**
      * Tampilkan formulir login.
      */
@@ -72,22 +81,28 @@ class AuthController extends Controller
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
 
-        $user = User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
-        ]);
+        // Akun, kategori awal, dan log registrasi disimpan dalam satu transaksi.
+        $user = DB::transaction(function () use ($validated): User {
+            $user = User::create([
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'password' => Hash::make($validated['password']),
+            ]);
+
+            $this->categoryRepository->copyDefaultsForUser($user->id);
+
+            ActivityLog::record(
+                userId: $user->id,
+                action: 'REGISTER',
+                entity: 'User',
+                entityId: $user->id,
+                description: 'Pendaftaran akun baru berhasil'
+            );
+
+            return $user;
+        });
 
         Auth::login($user);
-
-        // Catat log aktivitas registrasi
-        ActivityLog::record(
-            userId: $user->id,
-            action: 'REGISTER',
-            entity: 'User',
-            entityId: $user->id,
-            description: 'Pendaftaran akun baru berhasil'
-        );
 
         return redirect()->route('dashboard')
             ->with('success', 'Akun berhasil didaftarkan. Selamat datang!');

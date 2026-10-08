@@ -2,29 +2,31 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
-class UpdateCategoryRequest extends FormRequest
+class UpdateCategoryRequest extends StoreCategoryRequest
 {
+    /**
+     * Batasi pembaruan pada kategori milik pengguna yang sedang login.
+     */
     public function authorize(): bool
     {
-        return true;
+        return $this->route('category')->user_id === $this->user()->id;
     }
 
+    /**
+     * Gunakan validasi tambah dengan mengecualikan kategori yang sedang diedit dari aturan unik.
+     */
     public function rules(): array
     {
-        return [
-            'name' => ['required', 'string', 'max:100'],
-            'icon' => ['nullable', 'string', 'max:50'],
-            'color' => ['nullable', 'string', 'max:7'],
+        $rules = parent::rules();
+        $rules['name'] = [
+            'required',
+            'string',
+            'max:100',
+            Rule::unique('categories')->where('user_id', $this->user()->id)->ignore($this->route('category')),
         ];
-    }
 
-    public function messages(): array
-    {
-        return [
-            'name.required' => 'Nama kategori wajib diisi.',
-            'name.max' => 'Nama kategori maksimal 100 karakter.',
-        ];
+        return $rules;
     }
 }
