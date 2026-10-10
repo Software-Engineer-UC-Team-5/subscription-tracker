@@ -2,6 +2,8 @@
 
 namespace App\Enums;
 
+use Carbon\Carbon;
+
 enum BillingPeriod: string
 {
     case DAILY = 'DAILY';
@@ -18,6 +20,23 @@ enum BillingPeriod: string
             self::MONTHLY => 'Bulanan',
             self::QUARTERLY => '3 Bulanan (Quarterly)',
             self::YEARLY => 'Tahunan',
+        };
+    }
+
+    /**
+     * Hitung tanggal tagihan berikutnya satu periode setelah tanggal yang diberikan.
+     * NoOverflow menjaga 31 Jan menjadi 28/29 Feb, bukan 2/3 Maret.
+     */
+    public function nextDateAfter(Carbon $date): Carbon
+    {
+        $date = $date->copy();
+
+        return match ($this) {
+            self::DAILY => $date->addDay(),
+            self::WEEKLY => $date->addWeek(),
+            self::MONTHLY => $date->addMonthNoOverflow(),
+            self::QUARTERLY => $date->addMonthsNoOverflow(3),
+            self::YEARLY => $date->addYearNoOverflow(),
         };
     }
 

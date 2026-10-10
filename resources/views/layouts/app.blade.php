@@ -11,7 +11,7 @@
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700&display=swap">
     <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com/3.4.17"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -64,7 +64,7 @@
 
     <!-- Sidebar: tetap di kiri pada desktop, menjadi drawer pada layar kecil -->
     <aside id="mobile-sidebar" aria-label="Menu utama"
-        class="fixed inset-y-0 left-0 z-50 w-[260px] bg-ink border-r border-ink-800 flex flex-col px-4 pt-7 pb-5 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out">
+        class="fixed inset-y-0 left-0 z-50 w-65 bg-ink border-r border-ink-800 flex flex-col px-4 pt-7 pb-5 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out">
         <div class="flex items-center justify-between gap-2 px-2">
             <a href="{{ route('dashboard') }}" class="flex items-center gap-3 min-w-0">
                 <span class="w-10 h-10 rounded-[13px] bg-primary flex items-center justify-center flex-none">
@@ -98,7 +98,7 @@
     </aside>
 
     <!-- Area konten utama di kanan sidebar -->
-    <div class="lg:pl-[260px] min-h-screen flex flex-col">
+    <div class="lg:pl-65 min-h-screen flex flex-col">
         <!--
             Header gelap. Halaman dapat mengisi hero judul dengan salah satu cara:
             1. @section('page_title'), opsional @section('page_subtitle') dan @section('page_actions')
@@ -108,7 +108,7 @@
         @php
             $hasHero = View::hasSection('header') || View::hasSection('page_title');
         @endphp
-        <header class="bg-ink px-4 sm:px-8 lg:px-12 pt-7 {{ $hasHero ? 'pb-[104px]' : 'pb-7' }} flex flex-col">
+        <header class="bg-ink px-4 sm:px-8 lg:px-12 pt-7 {{ $hasHero ? 'pb-26' : 'pb-7' }} flex flex-col">
             <!-- Bilah atas: nama halaman, notifikasi, dan avatar -->
             <div class="flex items-center justify-between gap-4">
                 <div class="flex items-center gap-3 min-w-0">
@@ -135,7 +135,7 @@
                         @auth
                             @if ($unreadNotificationsCount > 0)
                                 <span
-                                    class="absolute -top-1 -right-1 inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 text-[11px] font-bold leading-none text-white bg-rose-500 rounded-full ring-2 ring-ink">
+                                    class="absolute -top-1 -right-1 inline-flex items-center justify-center min-w-5 h-5 px-1 text-[11px] font-bold leading-none text-white bg-rose-500 rounded-full ring-2 ring-ink">
                                     {{ $unreadNotificationsCount > 99 ? '99+' : $unreadNotificationsCount }}
                                 </span>
                             @endif
@@ -160,7 +160,7 @@
             @elseif (View::hasSection('page_title'))
                 <div class="mt-8 flex flex-wrap items-end justify-between gap-6">
                     <div class="min-w-0">
-                        <h1 class="m-0 text-4xl sm:text-5xl sm:leading-[56px] font-bold text-white tracking-[-0.7px] break-words">
+                        <h1 class="m-0 text-4xl sm:text-5xl sm:leading-14 font-bold text-white tracking-[-0.7px] wrap-break-word">
                             @yield('page_title')
                         </h1>
                         @hasSection('page_subtitle')
@@ -178,7 +178,7 @@
 
         <!-- Kartu putih konten; naik menimpa header jika halaman memakai hero -->
         <main
-            class="flex-1 flex flex-col min-w-0 {{ $hasHero ? '-mt-16 mx-4 sm:mx-8 lg:mx-10 mb-10 bg-white rounded-[32px] p-6 sm:p-8' : 'p-4 sm:p-8 lg:p-10' }}">
+            class="flex-1 flex flex-col min-w-0 {{ $hasHero ? '-mt-16 mx-4 sm:mx-8 lg:mx-10 mb-10 bg-white rounded-4xl p-6 sm:p-8' : 'p-4 sm:p-8 lg:p-10' }}">
             <!-- Pesan sukses -->
             @if (session('success'))
                 <div role="status"

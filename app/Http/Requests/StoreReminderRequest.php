@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Enums\ReminderType;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
 
 class StoreReminderRequest extends FormRequest
@@ -16,7 +17,8 @@ class StoreReminderRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'subscription_id' => ['required', 'exists:subscriptions,id'],
+            // Hanya langganan milik user sendiri yang boleh diberi pengingat
+            'subscription_id' => ['required', Rule::exists('subscriptions', 'id')->where('user_id', $this->user()->id)],
             'type' => ['required', new Enum(ReminderType::class)],
             'notify_before_days' => ['required', 'integer', 'min:0', 'max:30'],
             'is_active' => ['nullable', 'boolean'],
@@ -27,6 +29,7 @@ class StoreReminderRequest extends FormRequest
     {
         return [
             'subscription_id.required' => 'Subscription wajib dipilih.',
+            'subscription_id.exists' => 'Subscription yang dipilih tidak valid.',
             'type.required' => 'Jenis pengingat wajib ditentukan.',
             'notify_before_days.required' => 'Jumlah hari sebelum jatuh tempo wajib diisi.',
             'notify_before_days.min' => 'Jumlah hari sebelum jatuh tempo minimal 0 (hari H).',
@@ -48,7 +51,9 @@ class StoreReminderRequest extends FormRequest
                 return;
             }
 
-            $subscription = \App\Models\Subscription::with('freeTrial')->find($subscriptionId);
+            $subscription = \App\Models\Subscription::with('freeTrial')
+                ->where('user_id', $this->user()->id)
+                ->find($subscriptionId);
             if (!$subscription) {
                 return;
             }

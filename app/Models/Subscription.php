@@ -80,6 +80,26 @@ class Subscription extends Model
     }
 
     /**
+     * Domain method: Majukan next_payment_date per billing_period sampai tidak lagi lewat dari hari ini.
+     * Mengembalikan true jika tanggal berubah.
+     */
+    public function rollForwardNextPaymentDate(?Carbon $today = null): bool
+    {
+        $today = ($today ?? Carbon::today())->copy()->startOfDay();
+
+        if (!$this->next_payment_date || !$this->billing_period || $this->next_payment_date->gte($today)) {
+            return false;
+        }
+
+        $date = $this->next_payment_date->copy();
+        while ($date->lt($today)) {
+            $date = $this->billing_period->nextDateAfter($date);
+        }
+
+        return $this->update(['next_payment_date' => $date]);
+    }
+
+    /**
      * Domain method: Hitung estimasi biaya tahunan berdasarkan billing_period.
      */
     public function getAnnualCost(): float

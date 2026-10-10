@@ -36,7 +36,7 @@
         <!-- Formulir buat pengingat baru -->
         <form action="{{ route('reminders.store') }}" method="POST" class="flex-[3_1_420px] min-w-0 flex flex-col">
             @csrf
-            <h2 class="text-[22px] leading-[30px] font-bold text-ink tracking-[-0.2px]">Buat pengingat</h2>
+            <h2 class="text-[22px] leading-7.5 font-bold text-ink tracking-[-0.2px]">Buat pengingat</h2>
 
             @php
                 // Error di luar tiga field utama (misalnya is_active) tetap ditampilkan di atas formulir
@@ -63,7 +63,7 @@
                         </svg>
                     </span>
                     <div class="flex-1 flex flex-col gap-0.5">
-                        <span class="text-[15px] leading-[22px] font-bold text-ink">Belum ada langganan aktif</span>
+                        <span class="text-[15px] leading-5.5 font-bold text-ink">Belum ada langganan aktif</span>
                         <span class="text-sm leading-5 text-[#4A4A52]">Tambahkan langganan dulu, baru pengingat bisa diatur.</span>
                         <a href="{{ route('subscriptions.create') }}"
                             class="mt-1 min-h-11 inline-flex items-center text-[15px] font-bold text-primary hover:text-primary-hover">
@@ -140,7 +140,7 @@
 
                 <div class="mt-6 flex justify-end">
                     <button type="submit"
-                        class="h-[52px] px-8 rounded-full text-[15px] font-bold transition bg-primary hover:bg-primary-hover text-white disabled:bg-[#E4E4E7] disabled:text-[#52525B] disabled:cursor-not-allowed">
+                        class="h-13 px-8 rounded-full text-[15px] font-bold transition bg-primary hover:bg-primary-hover text-white disabled:bg-[#E4E4E7] disabled:text-[#52525B] disabled:cursor-not-allowed">
                         Simpan pengingat
                     </button>
                 </div>
@@ -151,33 +151,33 @@
             <!-- Kosong total: kotak putus-putus seperti board "kosong" -->
             <div class="flex-[2_1_300px] min-w-0 flex flex-col self-stretch">
                 <div class="flex items-center justify-between gap-4">
-                    <h2 class="text-[22px] leading-[30px] font-bold text-ink tracking-[-0.2px]">Pengingat aktif</h2>
+                    <h2 class="text-[22px] leading-7.5 font-bold text-ink tracking-[-0.2px]">Pengingat aktif</h2>
                     <span class="text-[13px] font-semibold text-[#6B6B73]">0</span>
                 </div>
                 <div
                     class="mt-4 flex-1 rounded-3xl border-[1.5px] border-dashed border-[#D4D4D8] px-7 py-10 flex flex-col items-center justify-center text-center">
-                    <div class="w-[72px] h-[72px] rounded-full bg-[#F4F4F5] flex items-center justify-center">
+                    <div class="w-18 h-18 rounded-full bg-[#F4F4F5] flex items-center justify-center">
                         <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#0D0D0F" stroke-width="1.8"
                             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <circle cx="12" cy="13" r="8"></circle>
                             <path d="M12 9v4l2.5 2M9 2.5h6"></path>
                         </svg>
                     </div>
-                    <p class="mt-4 text-lg leading-[26px] font-bold text-ink">Belum ada pengingat</p>
+                    <p class="mt-4 text-lg leading-6.5 font-bold text-ink">Belum ada pengingat</p>
                 </div>
             </div>
         @else
             <!-- Panel gelap berisi jumlah dan daftar pengingat -->
             <aside class="flex-[2_1_300px] min-w-0 bg-ink rounded-[28px] p-7 flex flex-col">
                 <span class="text-[13px] font-semibold text-zinc-400">Pengingat aktif</span>
-                <span class="mt-1.5 text-[56px] leading-[60px] font-bold text-white tracking-[-0.8px]">
+                <span class="mt-1.5 text-[56px] leading-15 font-bold text-white tracking-[-0.8px]">
                     {{ $reminders->where('is_active', true)->count() }}
                 </span>
 
                 @if ($reminders->isEmpty())
                     <div class="mt-6 p-5 rounded-[20px] border-[1.5px] border-dashed border-[#3A3A41] flex flex-col gap-1.5">
                         <span class="text-base font-bold text-white">Belum ada pengingat</span>
-                        <span class="text-sm leading-[21px] text-zinc-400">
+                        <span class="text-sm leading-5.25 text-zinc-400">
                             Simpan pengingat pertamamu dan jadwalnya akan tampil di sini.
                         </span>
                     </div>
@@ -189,7 +189,7 @@
                                 <div class="min-w-0">
                                     @if ($reminder->subscription)
                                         <a href="{{ route('subscriptions.show', $reminder->subscription) }}"
-                                            class="text-base font-bold text-white hover:underline break-words">
+                                            class="text-base font-bold text-white hover:underline wrap-break-word">
                                             {{ $reminder->subscription->name }}
                                         </a>
                                         <span class="block text-[13px] text-zinc-400">

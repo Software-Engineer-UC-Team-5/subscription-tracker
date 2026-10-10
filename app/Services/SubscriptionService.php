@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\SubscriptionStatus;
 use App\Models\ActivityLog;
 use App\Models\FreeTrial;
 use App\Models\Subscription;
@@ -89,6 +90,35 @@ class SubscriptionService
 
             return $updated;
         });
+    }
+
+    /**
+     * Majukan next_payment_date langganan aktif yang sudah lewat jatuh tempo ke siklus berikutnya,
+     * agar pengingat siklus berikutnya tetap terkirim. Mengembalikan jumlah langganan yang dimajukan.
+     */
+    public function rollForwardPastDuePayments(): int
+    {
+        $rolled = 0;
+
+        Subscription::where('status', SubscriptionStatus::ACTIVE)
+            ->whereDate('next_payment_date', '<', today())
+            ->eachById(function (Subscription $subscription) use (&$rolled) {
+                $oldDate = $subscription->next_payment_date->format('d M Y');
+
+                if ($subscription->rollForwardNextPaymentDate()) {
+                    ActivityLog::record(
+                        userId: $subscription->user_id,
+                        action: 'UPDATE',
+                        entity: 'Subscription',
+                        entityId: $subscription->id,
+                        description: "Tanggal tagihan {$subscription->name} dimajukan otomatis dari {$oldDate} ke " .
+                            $subscription->next_payment_date->format('d M Y')
+                    );
+                    $rolled++;
+                }
+            });
+
+        return $rolled;
     }
 
     /**
