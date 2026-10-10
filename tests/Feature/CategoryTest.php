@@ -31,7 +31,8 @@ class CategoryTest extends TestCase
         $this->assertSame('tv', $category->icon);
         $this->assertSame('#ef4444', $category->color);
         $this->assertDatabaseMissing('categories', ['user_id' => $otherUser->id]);
-        $this->get('/categories')->assertOk()->assertSee('Hiburan')->assertSee('color: #ef4444');
+        $this->get('/categories')->assertOk()->assertSee('Hiburan')->assertSee('color: #ef4444')
+            ->assertSee('background-color: #ef44441a; border-color: #ef444466', false);
         $this->get("/categories/{$category->id}/edit")->assertOk()->assertSee('value="Hiburan"', false);
         $this->get('/subscriptions/create')->assertOk()->assertSee('Hiburan');
 

@@ -52,8 +52,12 @@
                                         <span class="inline-flex shrink-0" style="color: {{ $categoryColor }}">
                                             @include('categories._icon', ['icon' => $category->icon])
                                         </span>
-                                        <span class="font-medium text-slate-900">
-                                            {{ $category->name }}
+                                        <!-- Badge memakai latar transparan agar teks gelap tetap terbaca pada warna terang -->
+                                        <span class="inline-flex items-center gap-2 max-w-full px-2.5 py-1 rounded-full border text-sm font-medium text-slate-900"
+                                            style="background-color: {{ $categoryColor }}1a; border-color: {{ $categoryColor }}66">
+                                            <span class="w-2 h-2 rounded-full shrink-0" style="background-color: {{ $categoryColor }}"
+                                                aria-hidden="true"></span>
+                                            <span class="break-words min-w-0">{{ $category->name }}</span>
                                         </span>
                                     </div>
                                 </td>
