@@ -1,108 +1,98 @@
-<!-- Bagian Menu Utama -->
-<div>
-    <p class="px-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
-        Menu Utama
-    </p>
-    <div class="space-y-1">
-        <!-- Menu Dashboard -->
-        <a href="{{ route('dashboard') }}"
-            class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition {{ request()->routeIs('dashboard') ? 'bg-primary text-white shadow-sm font-semibold' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
-            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-            </svg>
-            <span>Dashboard</span>
-        </a>
+@php
+    // Satu sumber kelas untuk item menu: aktif berwarna merah, selain itu teks terang di atas hitam
+    $navItem = fn (bool $active) => 'h-12 px-4 rounded-3xl flex items-center gap-3.5 text-[15px] transition '
+        . ($active ? 'bg-primary text-white font-bold' : 'text-zinc-200 font-semibold hover:bg-ink-900 hover:text-white');
+    $navIcon = fn (bool $active) => $active ? '#FFFFFF' : '#A1A1AA';
+@endphp
 
-        <!-- Menu Subscriptions -->
-        <a href="{{ route('subscriptions.index') }}"
-            class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition {{ request()->routeIs('subscriptions.*') ? 'bg-primary text-white shadow-sm font-semibold' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
-            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-            </svg>
-            <span>Subscriptions</span>
-        </a>
-    </div>
+<!-- Menu utama -->
+<div class="flex flex-col gap-1">
+    <a href="{{ route('dashboard') }}" class="{{ $navItem(request()->routeIs('dashboard')) }}"
+        @if (request()->routeIs('dashboard')) aria-current="page" @endif>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="{{ $navIcon(request()->routeIs('dashboard')) }}"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M3 11l9-8 9 8"></path>
+            <path d="M5 10v10h5v-6h4v6h5V10"></path>
+        </svg>
+        Dashboard
+    </a>
+    <a href="{{ route('subscriptions.index') }}" class="{{ $navItem(request()->routeIs('subscriptions.*')) }}"
+        @if (request()->routeIs('subscriptions.*')) aria-current="page" @endif>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="{{ $navIcon(request()->routeIs('subscriptions.*')) }}" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="5" width="18" height="15" rx="3"></rect>
+            <path d="M3 10h18M8 3v4M16 3v4"></path>
+        </svg>
+        Langganan
+    </a>
 </div>
 
-<!-- Bagian Referensi Master Data -->
-<div>
-    <p class="px-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
-        Referensi
-    </p>
-    <div class="space-y-1">
-        <!-- Menu Kategori -->
-        <a href="{{ route('categories.index') }}"
-            class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition {{ request()->routeIs('categories.*') ? 'bg-primary text-white shadow-sm font-semibold' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
-            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-            </svg>
-            <span>Kategori</span>
-        </a>
-
-        <!-- Menu Metode Bayar -->
-        <a href="{{ route('payment-methods.index') }}"
-            class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition {{ request()->routeIs('payment-methods.*') ? 'bg-primary text-white shadow-sm font-semibold' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
-            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-            </svg>
-            <span>Metode Bayar</span>
-        </a>
-    </div>
+<!-- Data referensi -->
+<p class="mt-6 mb-1.5 ml-4 text-[13px] font-semibold text-[#8A8A92]">Atur</p>
+<div class="flex flex-col gap-1">
+    <a href="{{ route('categories.index') }}" class="{{ $navItem(request()->routeIs('categories.*')) }}"
+        @if (request()->routeIs('categories.*')) aria-current="page" @endif>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="{{ $navIcon(request()->routeIs('categories.*')) }}" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" aria-hidden="true">
+            <path d="M3 12V4h8l10 10-8 8z"></path>
+            <circle cx="7.5" cy="8.5" r="1.3"></circle>
+        </svg>
+        Kategori
+    </a>
+    <a href="{{ route('payment-methods.index') }}" class="{{ $navItem(request()->routeIs('payment-methods.*')) }}"
+        @if (request()->routeIs('payment-methods.*')) aria-current="page" @endif>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="{{ $navIcon(request()->routeIs('payment-methods.*')) }}" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" aria-hidden="true">
+            <rect x="2.5" y="5" width="19" height="14" rx="3"></rect>
+            <path d="M2.5 10h19M6 15h4"></path>
+        </svg>
+        Metode bayar
+    </a>
 </div>
 
-<!-- Bagian Sistem & Notifikasi -->
-<div>
-    <p class="px-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
-        Sistem & Audit
-    </p>
-    <div class="space-y-1">
-        <!-- Menu Pengingat -->
-        <a href="{{ route('reminders.index') }}"
-            class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition {{ request()->routeIs('reminders.*') ? 'bg-primary text-white shadow-sm font-semibold' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
-            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span>Pengingat</span>
-        </a>
-
-        <!-- Menu Notifikasi -->
+<!-- Aktivitas akun -->
+<p class="mt-6 mb-1.5 ml-4 text-[13px] font-semibold text-[#8A8A92]">Aktivitas</p>
+<div class="flex flex-col gap-1">
+    <a href="{{ route('reminders.index') }}" class="{{ $navItem(request()->routeIs('reminders.*')) }}"
+        @if (request()->routeIs('reminders.*')) aria-current="page" @endif>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="{{ $navIcon(request()->routeIs('reminders.*')) }}" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="13" r="8"></circle>
+            <path d="M12 9v4l2.5 2M9 2.5h6"></path>
+        </svg>
+        Pengingat
+    </a>
+    <a href="{{ route('notifications.index') }}" class="{{ $navItem(request()->routeIs('notifications.*')) }}"
+        @if (request()->routeIs('notifications.*')) aria-current="page" @endif>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="{{ $navIcon(request()->routeIs('notifications.*')) }}" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" aria-hidden="true">
+            <path d="M6 8a6 6 0 0 1 12 0c0 7 3 8 3 8H3s3-1 3-8"></path>
+            <path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"></path>
+        </svg>
+        <span class="flex-1">Notifikasi</span>
         @auth
-            @php
-                $unreadNavCount = auth()->user()->unreadNotificationsCount();
-            @endphp
+            {{-- $unreadNotificationsCount disiapkan sekali di layouts/app --}}
+            @if (($unreadNotificationsCount ?? 0) > 0)
+                <span
+                    class="inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 text-[11px] font-bold leading-none rounded-full {{ request()->routeIs('notifications.*') ? 'bg-white text-primary' : 'bg-primary text-white' }}">
+                    {{ $unreadNotificationsCount > 99 ? '99+' : $unreadNotificationsCount }}
+                </span>
+            @endif
         @endauth
-        <a href="{{ route('notifications.index') }}"
-            class="flex items-center justify-between px-3 py-2 rounded-xl text-sm font-medium transition {{ request()->routeIs('notifications.*') ? 'bg-primary text-white shadow-sm font-semibold' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
-            <div class="flex items-center gap-3">
-                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                </svg>
-                <span>Notifikasi</span>
-            </div>
-            @auth
-                @if (($unreadNavCount ?? 0) > 0)
-                    <span
-                        class="inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold leading-none rounded-full {{ request()->routeIs('notifications.*') ? 'bg-white text-primary' : 'bg-rose-500 text-white' }}">
-                        {{ $unreadNavCount > 99 ? '99+' : $unreadNavCount }}
-                    </span>
-                @endif
-            @endauth
-        </a>
-
-        <!-- Menu Log Aktivitas -->
-        <a href="{{ route('activity-logs.index') }}"
-            class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition {{ request()->routeIs('activity-logs.*') ? 'bg-primary text-white shadow-sm font-semibold' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
-            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            <span>Log Aktivitas</span>
-        </a>
-    </div>
+    </a>
+    <a href="{{ route('activity-logs.index') }}" class="{{ $navItem(request()->routeIs('activity-logs.*')) }}"
+        @if (request()->routeIs('activity-logs.*')) aria-current="page" @endif>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="{{ $navIcon(request()->routeIs('activity-logs.*')) }}" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" aria-hidden="true">
+            <path d="M4 12a8 8 0 1 0 2.5-5.8L4 8.5"></path>
+            <path d="M4 3.5v5h5M12 8v4.5l3 1.5"></path>
+        </svg>
+        Riwayat aktivitas
+    </a>
 </div>

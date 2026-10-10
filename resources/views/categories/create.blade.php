@@ -2,28 +2,31 @@
 
 @section('title', 'Tambah Kategori')
 
-@section('content')
-    <!-- Header formulir tambah dan tautan kembali ke daftar -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-200 mb-6">
-        <h1 class="text-xl font-bold text-slate-900">Tambah Kategori</h1>
-        <a href="{{ route('categories.index', [], false) }}"
-            class="inline-flex items-center px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 text-sm font-medium rounded-lg border border-slate-300 shadow-sm transition">
-            Kembali
-        </a>
-    </div>
+@section('page_title', 'Tambah kategori')
+@section('page_subtitle', 'Beri nama, ikon, dan warna agar mudah dikenali.')
 
+@section('page_actions')
+    <a href="{{ route('categories.index', [], false) }}"
+        class="h-14 px-7 rounded-full border-[1.5px] border-ink-800 bg-ink-900 hover:bg-ink-800 text-white text-base font-bold inline-flex items-center transition">
+        Kembali
+    </a>
+@endsection
+
+@section('content')
     <!-- Halaman tambah tetap dapat digunakan tanpa membuka popup -->
-    <form action="{{ route('categories.store', [], false) }}" method="POST"
-        class="max-w-xl bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-5">
+    <form action="{{ route('categories.store', [], false) }}" method="POST" class="w-full max-w-[520px]">
         @csrf
         @include('categories._form', ['category' => null])
 
-        <div class="flex items-center gap-4">
+        <div class="mt-7 flex flex-wrap items-center gap-3">
             <button type="submit"
-                class="px-4 py-2 bg-primary hover:bg-primary-hover text-white text-sm font-medium rounded-lg shadow-sm transition">
-                Simpan Kategori
+                class="h-[52px] px-8 rounded-full bg-primary hover:bg-primary-hover text-white text-[15px] font-bold transition">
+                Simpan kategori
             </button>
-            <a href="{{ route('categories.index', [], false) }}" class="text-sm text-slate-700 hover:underline">Batal</a>
+            <a href="{{ route('categories.index', [], false) }}"
+                class="h-[52px] px-7 rounded-full border-[1.5px] border-ink bg-white hover:bg-[#F4F4F5] text-ink text-[15px] font-bold inline-flex items-center transition">
+                Batal
+            </a>
         </div>
     </form>
 @endsection

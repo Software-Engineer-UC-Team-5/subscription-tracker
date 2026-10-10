@@ -1,36 +1,34 @@
 @auth
-    <!-- Kartu Profil Pengguna & Aksi Logout -->
-    <div class="flex items-center justify-between">
-        <div class="flex items-center gap-3 overflow-hidden">
-            <div
-                class="w-9 h-9 rounded-full bg-primary/10 text-primary font-bold text-xs flex items-center justify-center flex-shrink-0">
-                {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
-            </div>
-            <div class="truncate">
-                <span class="text-xs font-semibold text-slate-900 block truncate">{{ auth()->user()->name }}</span>
-                <span class="text-[10px] text-slate-400 block truncate">{{ auth()->user()->email }}</span>
-            </div>
+    <!-- Kartu profil pengguna dan tombol keluar -->
+    <div class="pt-4 px-2 border-t border-ink-800 flex items-center gap-3">
+        <span
+            class="w-11 h-11 rounded-full bg-primary text-white text-[15px] font-bold flex items-center justify-center flex-none">
+            {{ $userInitials ?? mb_strtoupper(mb_substr(auth()->user()->name, 0, 2)) }}
+        </span>
+        <div class="flex-1 min-w-0 flex flex-col">
+            <span class="text-[15px] leading-5 font-bold text-white truncate">{{ auth()->user()->name }}</span>
+            <span class="text-xs leading-[18px] text-[#8A8A92] truncate">{{ auth()->user()->email }}</span>
         </div>
 
-        <form action="{{ route('logout') }}" method="POST" class="inline flex-shrink-0">
+        <form action="{{ route('logout') }}" method="POST" class="flex-none">
             @csrf
-            <button type="submit" class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition"
-                title="Keluar dari Aplikasi">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            <button type="submit" aria-label="Keluar" title="Keluar dari Aplikasi"
+                class="w-11 h-11 rounded-full flex items-center justify-center text-zinc-400 hover:text-white hover:bg-ink-900 transition">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M9 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4M16 8l4 4-4 4M20 12H9"></path>
                 </svg>
             </button>
         </form>
     </div>
 @else
-    <div class="flex items-center justify-between gap-2">
+    <div class="pt-4 border-t border-ink-800 flex items-center gap-2">
         <a href="{{ route('login') }}"
-            class="w-full text-center py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100 rounded-lg transition">
+            class="flex-1 h-11 rounded-full flex items-center justify-center text-sm font-semibold text-zinc-200 hover:bg-ink-900 transition">
             Masuk
         </a>
         <a href="{{ route('register') }}"
-            class="w-full text-center py-2 text-xs font-semibold text-white bg-primary hover:bg-primary-hover rounded-lg transition">
+            class="flex-1 h-11 rounded-full flex items-center justify-center text-sm font-semibold text-white bg-primary hover:bg-primary-hover transition">
             Daftar
         </a>
     </div>

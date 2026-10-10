@@ -1,92 +1,92 @@
 @extends('layouts.app')
 
-@section('title', 'Log Aktivitas Pengguna')
+@section('title', 'Riwayat aktivitas')
+
+@section('page_title', 'Riwayat aktivitas')
+@section('page_subtitle', 'Catatan perubahan data dan login di akunmu.')
 
 @section('content')
-    <div class="space-y-6">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-5 border-b border-slate-200 gap-4">
-            <div>
-                <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Log Aktivitas (Audit Trail)</h1>
-                <p class="text-sm text-slate-500 mt-1">Catatan riwayat seluruh mutasi data dan autentikasi akun demi
-                    transparansi dan audit keamanan.</p>
+    @php
+        // Label tampilan untuk kode aksi yang disimpan backend; nilai di database tidak berubah
+        $actionLabels = [
+            'CREATE' => 'Dibuat',
+            'UPDATE' => 'Diubah',
+            'DELETE' => 'Dihapus',
+            'LOGIN' => 'Masuk',
+            'LOGOUT' => 'Keluar',
+            'REGISTER' => 'Daftar',
+        ];
+    @endphp
+
+    @if ($logs->isEmpty())
+        <!-- Tampilan kosong -->
+        <div class="flex-1 flex flex-col items-center justify-center text-center py-10">
+            <div class="w-[84px] h-[84px] rounded-full bg-[#F4F4F5] flex items-center justify-center">
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#0D0D0F" stroke-width="1.8"
+                    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M4 12a8 8 0 1 0 2.5-5.8L4 8.5"></path>
+                    <path d="M4 3.5v5h5M12 8v4.5l3 1.5"></path>
+                </svg>
             </div>
-            <span class="text-xs font-semibold px-3 py-1.5 rounded-full bg-slate-100 text-slate-700">
-                Total Log: {{ $logs->total() }}
-            </span>
+            <h2 class="mt-5 text-2xl leading-8 font-bold text-ink tracking-[-0.2px]">Belum ada aktivitas</h2>
+            <p class="mt-1.5 max-w-[400px] text-base leading-6 text-[#6B6B73]">
+                Setiap penambahan, perubahan, dan login akan dicatat otomatis di sini.
+            </p>
+        </div>
+    @else
+        <div class="flex items-center justify-between gap-4">
+            <h2 class="text-[22px] leading-[30px] font-bold text-ink tracking-[-0.2px]">Semua aktivitas</h2>
+            <span class="text-[13px] font-semibold text-[#6B6B73]">Total log: {{ $logs->total() }}</span>
         </div>
 
-        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-            @if ($logs->isEmpty())
-                <div class="py-12 px-4 text-center">
-                    <div
-                        class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-slate-100 text-slate-400 mb-3">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </div>
-                    <p class="text-sm font-medium text-slate-700">Belum Ada Riwayat Aktivitas</p>
-                    <p class="text-xs text-slate-400 mt-1">Setiap aksi penambahan, perubahan, dan login akan dicatat secara
-                        otomatis
-                        di sini.</p>
-                </div>
-            @else
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm text-slate-600">
-                        <thead class="bg-slate-50 text-xs uppercase font-semibold text-slate-500 border-b border-slate-200">
-                            <tr>
-                                <th class="px-6 py-3.5">Waktu</th>
-                                <th class="px-6 py-3.5">Aksi</th>
-                                <th class="px-6 py-3.5">Entitas</th>
-                                <th class="px-6 py-3.5">Rincian Aktivitas</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100">
-                            @foreach ($logs as $log)
-                                <tr class="hover:bg-slate-50/75 transition">
-                                    <td class="px-6 py-4 text-xs text-slate-500 whitespace-nowrap">
-                                        {{ $log->created_at ? $log->created_at->format('d M Y, H:i') : '-' }}
-                                        <span class="block text-[10px] text-slate-400">
-                                            {{ $log->created_at ? $log->created_at->diffForHumans() : '' }}
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        @php
-                                            $actionClass = match ($log->action) {
-                                                'CREATE' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
-                                                'UPDATE' => 'bg-blue-50 text-blue-700 border-blue-200',
-                                                'DELETE' => 'bg-rose-50 text-rose-700 border-rose-200',
-                                                'LOGIN' => 'bg-purple-50 text-purple-700 border-purple-200',
-                                                'LOGOUT' => 'bg-slate-100 text-slate-600 border-slate-200',
-                                                default => 'bg-slate-100 text-slate-700 border-slate-200',
-                                            };
-                                        @endphp
-                                        <span
-                                            class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border {{ $actionClass }}">
-                                            {{ $log->action }}
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4 font-medium text-slate-800">
-                                        {{ $log->entity ?? '-' }}
-                                        @if ($log->entity_id)
-                                            <span class="text-xs text-slate-400 font-normal">#{{ $log->entity_id }}</span>
-                                        @endif
-                                    </td>
-                                    <td class="px-6 py-4 text-slate-700">
-                                        {{ $log->description }}
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-
-                @if ($logs->hasPages())
-                    <div class="p-4 border-t border-slate-100 bg-slate-50">
-                        {{ $logs->links() }}
-                    </div>
-                @endif
-            @endif
+        <!-- Tabel log; bisa digeser horizontal di layar kecil -->
+        <div class="mt-5 overflow-x-auto">
+            <table class="w-full min-w-[720px] text-left border-separate border-spacing-0">
+                <thead>
+                    <tr class="text-[13px] font-bold text-[#52525B]">
+                        <th scope="col" class="h-11 px-5 bg-[#F4F4F5] rounded-l-[14px] w-[19%]">Waktu</th>
+                        <th scope="col" class="h-11 px-5 bg-[#F4F4F5] w-[16%]">Jenis</th>
+                        <th scope="col" class="h-11 px-5 bg-[#F4F4F5] w-[18%]">Entitas</th>
+                        <th scope="col" class="h-11 px-5 bg-[#F4F4F5] rounded-r-[14px]">Rincian</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($logs as $log)
+                        <tr class="align-middle">
+                            <td class="px-5 py-[18px] border-b border-[#EEEEF0]">
+                                @if ($log->created_at)
+                                    <span class="block text-[15px] leading-[22px] font-bold text-ink whitespace-nowrap">
+                                        {{ $log->created_at->locale('id')->translatedFormat('d M Y, H.i') }}
+                                    </span>
+                                    <span class="block text-[13px] leading-[18px] text-[#6B6B73]">
+                                        {{ $log->created_at->locale('id')->diffForHumans() }}
+                                    </span>
+                                @else
+                                    <span class="text-[15px] text-[#6B6B73]">-</span>
+                                @endif
+                            </td>
+                            <td class="px-5 py-[18px] border-b border-[#EEEEF0]">
+                                <span
+                                    class="h-8 px-3.5 rounded-2xl bg-[#F4F4F5] text-[#52525B] text-[13px] font-bold inline-flex items-center whitespace-nowrap">
+                                    {{ $actionLabels[$log->action] ?? ucfirst(strtolower($log->action)) }}
+                                </span>
+                            </td>
+                            <td class="px-5 py-[18px] border-b border-[#EEEEF0] text-sm text-[#52525B] break-words">
+                                {{ $log->entity ?? '-' }}@if ($log->entity_id) #{{ $log->entity_id }}@endif
+                            </td>
+                            <td class="px-5 py-[18px] border-b border-[#EEEEF0] text-[15px] leading-[22px] text-[#3F3F46] break-words">
+                                {{ $log->description ?? '-' }}
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
         </div>
-    </div>
+
+        @if ($logs->hasPages())
+            <div class="mt-6">
+                {{ $logs->links() }}
+            </div>
+        @endif
+    @endif
 @endsection

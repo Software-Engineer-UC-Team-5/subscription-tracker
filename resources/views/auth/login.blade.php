@@ -1,55 +1,82 @@
 @extends('layouts.guest')
 
-@section('title', 'Masuk Akun')
+@section('title', 'Masuk')
 
 @section('content')
-    <div class="mb-6">
-        <h2 class="text-xl font-bold text-slate-900 tracking-tight">Masuk ke Akun Anda</h2>
-        <p class="text-sm text-slate-500 mt-1">Masukkan kredensial Anda untuk mengakses dashboard langganan.</p>
-    </div>
+    @php
+        // Gaya input desain: abu-abu saat diam, putih dengan border merah saat fokus, merah tua saat error
+        $inputClass = 'w-full h-[52px] rounded-2xl px-[18px] text-base text-ink placeholder:text-[#A1A1AA] outline-none transition focus:bg-white focus:border-2 focus:border-primary';
+        $inputState = fn (string $field) => $errors->has($field)
+            ? 'bg-white border-2 border-[#B42318]'
+            : 'bg-[#F4F4F5] border-[1.5px] border-[#E4E4E7]';
+    @endphp
 
-    <form action="{{ route('login') }}" method="POST" class="space-y-4">
+    <h1 class="text-[32px] leading-[38px] font-bold text-ink tracking-[-0.4px]">Masuk</h1>
+    <p class="mt-1.5 text-base leading-6 text-[#6B6B73]">Lanjut kelola langgananmu.</p>
+
+    <form action="{{ route('login') }}" method="POST" class="mt-8 flex flex-col">
         @csrf
 
-        <div>
-            <label for="email" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">Alamat
-                Email</label>
-            <input type="email" id="email" name="email" value="{{ old('email') }}" placeholder="nama@email.com" required
-                autofocus
-                class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition">
+        <div class="flex flex-col gap-2">
+            <label for="email" class="text-sm font-semibold text-ink">Email</label>
+            <input type="email" id="email" name="email" value="{{ old('email') }}" placeholder="nama@email.com"
+                required autofocus autocomplete="email"
+                @error('email') aria-invalid="true" aria-describedby="email-error" @enderror
+                class="{{ $inputClass }} {{ $inputState('email') }}">
             @error('email')
-                <p class="text-xs text-rose-600 mt-1">{{ $message }}</p>
+                <p id="email-error" class="text-sm text-[#B42318]">{{ $message }}</p>
             @enderror
         </div>
 
-        <div>
-            <label for="password" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">Kata
-                Sandi</label>
-            <input type="password" id="password" name="password" placeholder="••••••••" required
-                class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition">
-            @error('password')
-                <p class="text-xs text-rose-600 mt-1">{{ $message }}</p>
-            @enderror
-        </div>
-
-        <div class="flex items-center justify-between pt-1">
-            <div class="flex items-center">
-                <input type="checkbox" id="remember" name="remember" checked
-                    class="h-4 w-4 rounded border-slate-300 text-primary focus:ring-primary">
-                <label for="remember" class="ml-2 block text-xs font-medium text-slate-600">Ingat Sesi Saya</label>
+        <div class="mt-[18px] flex flex-col gap-2">
+            <label for="password" class="text-sm font-semibold text-ink">Kata sandi</label>
+            <div class="relative">
+                <input type="password" id="password" name="password" placeholder="••••••••" required
+                    autocomplete="current-password"
+                    @error('password') aria-invalid="true" aria-describedby="password-error" @enderror
+                    class="{{ $inputClass }} {{ $inputState('password') }} pr-14">
+                <!-- Tombol tampilkan / sembunyikan kata sandi -->
+                <button type="button" data-password-toggle="password" aria-label="Tampilkan kata sandi"
+                    aria-pressed="false"
+                    class="absolute right-1 top-1 w-11 h-11 rounded-xl flex items-center justify-center text-[#6B6B73] hover:text-ink">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                </button>
             </div>
+            @error('password')
+                <p id="password-error" class="text-sm text-[#B42318]">{{ $message }}</p>
+            @enderror
         </div>
+
+        <label for="remember" class="mt-2.5 min-h-11 flex items-center gap-3 text-[15px] text-[#3F3F46] cursor-pointer">
+            <input type="checkbox" id="remember" name="remember" checked class="w-5 h-5 m-0 accent-primary">
+            Ingat saya di perangkat ini
+        </label>
 
         <button type="submit"
-            class="w-full py-2.5 px-4 bg-primary hover:bg-primary-hover text-white font-semibold text-sm rounded-xl shadow-sm transition duration-150">
+            class="mt-3.5 h-14 w-full rounded-full bg-primary hover:bg-primary-hover text-white text-base font-bold transition">
             Masuk
         </button>
     </form>
 
-    <div class="mt-6 pt-5 border-t border-slate-100 text-center">
-        <p class="text-xs text-slate-600">
-            Belum memiliki akun?
-            <a href="{{ route('register') }}" class="font-semibold text-primary hover:underline">Daftar sekarang</a>
-        </p>
-    </div>
+    <p class="mt-[22px] text-center text-[15px] text-[#52525B]">
+        Belum punya akun?
+        <a href="{{ route('register') }}" class="font-bold text-primary hover:text-primary-hover">Daftar</a>
+    </p>
+
+    <script>
+        // Ganti tipe input agar kata sandi bisa dilihat sebelum dikirim
+        document.querySelectorAll('[data-password-toggle]').forEach(button => {
+            button.addEventListener('click', () => {
+                const input = document.getElementById(button.dataset.passwordToggle);
+                const show = input.type === 'password';
+                input.type = show ? 'text' : 'password';
+                button.setAttribute('aria-pressed', show);
+                button.setAttribute('aria-label', show ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi');
+            });
+        });
+    </script>
 @endsection
