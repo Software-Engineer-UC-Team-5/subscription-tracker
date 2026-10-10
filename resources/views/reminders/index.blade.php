@@ -55,6 +55,7 @@
 
             @unless ($hasSubscriptions)
                 <!-- Peringatan saat belum ada langganan aktif; formulir di bawahnya dinonaktifkan -->
+                    <span class="w-9 h-9 rounded-full bg-[#E4E4E7] flex items-center justify-center flex-none">
                 <div class="mt-4 p-4 rounded-[20px] bg-[#FFFFFF] flex gap-3">
                     <span class="w-9 h-9 rounded-full bg-[#E4E4E7] flex items-center justify-center flex-none">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0D0D0F" stroke-width="2.4"
