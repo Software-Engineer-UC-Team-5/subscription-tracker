@@ -90,6 +90,20 @@ class NotificationService
     }
 
     /**
+     * Tandai notifikasi milik pengguna sebagai sudah dibaca.
+     */
+    public function markAsRead(Notification $notification, int $userId): void
+    {
+        abort_unless(
+            $notification->user_id === $userId,
+            403,
+            'Anda tidak memiliki hak akses untuk mengubah status notifikasi ini.'
+        );
+
+        $notification->markAsRead();
+    }
+
+    /**
      * Mengirimkan Notification kepada pengguna via email serta memperbarui status menjadi SENT atau FAILED.
      */
     public function sendNotification(Notification $notification): bool

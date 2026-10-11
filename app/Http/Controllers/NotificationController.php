@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Notification;
 use App\Repositories\NotificationRepository;
+use App\Services\NotificationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -15,7 +16,8 @@ use Illuminate\View\View;
 class NotificationController extends Controller
 {
     public function __construct(
-        protected NotificationRepository $notificationRepository
+        protected NotificationRepository $notificationRepository,
+        protected NotificationService $notificationService
     ) {
     }
 
@@ -34,11 +36,7 @@ class NotificationController extends Controller
      */
     public function markAsRead(Notification $notification): RedirectResponse
     {
-        if ($notification->user_id !== auth()->id()) {
-            abort(403, 'Anda tidak memiliki hak akses untuk mengubah status notifikasi ini.');
-        }
-
-        $notification->markAsRead();
+        $this->notificationService->markAsRead($notification, auth()->id());
 
         return redirect()->back()
             ->with('success', 'Notifikasi ditandai sebagai telah dibaca.');

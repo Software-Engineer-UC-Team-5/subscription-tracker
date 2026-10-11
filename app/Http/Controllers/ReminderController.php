@@ -6,6 +6,7 @@ use App\Http\Requests\StoreReminderRequest;
 use App\Models\Reminder;
 use App\Repositories\ReminderRepository;
 use App\Repositories\SubscriptionRepository;
+use App\Services\ReminderService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -18,7 +19,8 @@ class ReminderController extends Controller
 {
     public function __construct(
         protected ReminderRepository $reminderRepository,
-        protected SubscriptionRepository $subscriptionRepository
+        protected SubscriptionRepository $subscriptionRepository,
+        protected ReminderService $reminderService
     ) {
     }
 
@@ -39,11 +41,11 @@ class ReminderController extends Controller
      */
     public function store(StoreReminderRequest $request): RedirectResponse
     {
-        $data = $request->validated();
-        $data['user_id'] = auth()->id();
-        $data['is_active'] = $request->boolean('is_active', true);
-
-        $this->reminderRepository->create($data);
+        $this->reminderService->create(
+            auth()->id(),
+            $request->validated(),
+            $request->boolean('is_active', true)
+        );
 
         return redirect()->back()
             ->with('success', 'Pengingat berhasil diatur.');
@@ -54,17 +56,9 @@ class ReminderController extends Controller
      */
     public function toggle(Reminder $reminder): RedirectResponse
     {
-        if ($reminder->user_id !== auth()->id()) {
-            abort(403, 'Anda tidak memiliki hak akses untuk mengubah status pengingat ini.');
-        }
-
-        if ($reminder->is_active) {
-            $reminder->deactivate();
-            $pesan = 'Pengingat berhasil dinonaktifkan.';
-        } else {
-            $reminder->activate();
-            $pesan = 'Pengingat berhasil diaktifkan.';
-        }
+        $pesan = $this->reminderService->toggle($reminder, auth()->id())
+            ? 'Pengingat berhasil diaktifkan.'
+            : 'Pengingat berhasil dinonaktifkan.';
 
         return redirect()->back()
             ->with('success', $pesan);
@@ -75,11 +69,7 @@ class ReminderController extends Controller
      */
     public function destroy(Reminder $reminder): RedirectResponse
     {
-        if ($reminder->user_id !== auth()->id()) {
-            abort(403, 'Anda tidak memiliki hak akses untuk menghapus pengingat ini.');
-        }
-
-        $this->reminderRepository->delete($reminder);
+        $this->reminderService->delete($reminder, auth()->id());
 
         return redirect()->back()
             ->with('success', 'Pengingat berhasil dihapus.');
