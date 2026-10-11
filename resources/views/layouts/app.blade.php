@@ -99,12 +99,12 @@
 
     <!-- Area konten utama di kanan sidebar -->
     <div class="lg:pl-[260px] min-h-screen flex flex-col">
-        <!--
+        {{--
             Header gelap. Halaman dapat mengisi hero judul dengan salah satu cara:
             1. @section('page_title'), opsional @section('page_subtitle') dan @section('page_actions')
             2. @section('header') untuk hero kustom (misalnya ringkasan di dashboard)
             Jika tidak diisi, header hanya menampilkan bilah atas.
-        -->
+        --}}
         @php
             $hasHero = View::hasSection('header') || View::hasSection('page_title');
         @endphp
