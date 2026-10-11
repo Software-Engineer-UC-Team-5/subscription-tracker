@@ -235,6 +235,47 @@ class ExampleTest extends TestCase
     }
 
     /**
+     * Pengujian status Masa Uji Coba menjadi Aktif menandai trial sebagai sudah berbayar,
+     * sedangkan perubahan status lain tidak.
+     */
+    public function test_trial_is_converted_only_when_status_changes_from_trial_to_active(): void
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $trialPayload = fn (string $name) => [
+            'name' => $name,
+            'price' => 59000,
+            'billing_period' => 'MONTHLY',
+            'next_payment_date' => '2026-11-20',
+            'status' => 'TRIAL',
+            'is_free_trial' => 1,
+            'trial_start_date' => '2026-10-20',
+            'trial_end_date' => '2026-11-19',
+        ];
+        $this->post('/subscriptions', $trialPayload('YouTube Premium'));
+        $this->post('/subscriptions', $trialPayload('Canva Pro'));
+        $youtube = $user->subscriptions()->where('name', 'YouTube Premium')->sole();
+        $canva = $user->subscriptions()->where('name', 'Canva Pro')->sole();
+
+        // Trial -> Aktif: dikonversi, dicatat di log, dan label tampil di halaman detail
+        $this->put("/subscriptions/{$youtube->id}", ['status' => 'ACTIVE'] + $trialPayload('YouTube Premium'))
+            ->assertSessionHasNoErrors();
+        $this->assertTrue($youtube->freeTrial()->sole()->is_converted);
+        $this->assertDatabaseHas('activity_logs', [
+            'entity' => 'FreeTrial',
+            'description' => 'Masa uji coba YouTube Premium dikonversi menjadi langganan berbayar',
+        ]);
+        $this->get("/subscriptions/{$youtube->id}")->assertOk()->assertSee('Sudah berbayar');
+
+        // Trial -> Dibatalkan: tidak dikonversi
+        $this->put("/subscriptions/{$canva->id}", ['status' => 'CANCELLED'] + $trialPayload('Canva Pro'))
+            ->assertSessionHasNoErrors();
+        $this->assertFalse($canva->freeTrial()->sole()->is_converted);
+        $this->get("/subscriptions/{$canva->id}")->assertOk()->assertDontSee('Sudah berbayar');
+    }
+
+    /**
      * Pengujian free trial yang dicentang wajib memiliki tanggal berakhir trial.
      */
     public function test_free_trial_requires_trial_end_date(): void

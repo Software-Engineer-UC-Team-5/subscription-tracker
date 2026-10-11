@@ -100,6 +100,8 @@ class SubscriptionService
                 ], fn ($value) => $value !== null));
             }
 
+            $wasTrial = $subscription->status === SubscriptionStatus::TRIAL;
+
             $updated = $this->subscriptionRepository->update($subscription, $data);
 
             if ($updated) {
@@ -109,6 +111,21 @@ class SubscriptionService
                     entity: 'Subscription',
                     entityId: $subscription->id,
                     description: "Memperbarui langganan: {$subscription->name}"
+                );
+            }
+
+            // Status Masa Uji Coba menjadi Aktif berarti trial dilanjutkan sebagai langganan berbayar
+            $freeTrial = $subscription->freeTrial;
+            if ($updated && $wasTrial && $subscription->status === SubscriptionStatus::ACTIVE
+                && $freeTrial && !$freeTrial->is_converted) {
+                $freeTrial->markAsConverted();
+
+                ActivityLog::record(
+                    userId: $subscription->user_id,
+                    action: 'UPDATE',
+                    entity: 'FreeTrial',
+                    entityId: $freeTrial->id,
+                    description: "Masa uji coba {$subscription->name} dikonversi menjadi langganan berbayar"
                 );
             }
 

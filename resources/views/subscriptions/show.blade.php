@@ -115,10 +115,17 @@
                 <div class="mt-8 p-5 rounded-[20px] bg-[#F4F4F5] flex flex-col gap-4">
                     <div class="flex flex-wrap items-center justify-between gap-2">
                         <h3 class="text-base font-bold text-ink">Masa uji coba gratis</h3>
-                        <span
-                            class="h-7 px-3 rounded-full text-[13px] font-bold inline-flex items-center {{ $subscription->freeTrial->isExpired() ? 'bg-[#FEF3F2] text-[#B42318]' : 'bg-ink text-white' }}">
-                            {{ $subscription->freeTrial->isExpired() ? 'Sudah berakhir' : 'Sedang berjalan' }}
-                        </span>
+                        <!-- Trial yang sudah dikonversi diprioritaskan di atas status berakhir/berjalan -->
+                        @if ($subscription->freeTrial->is_converted)
+                            <span class="h-7 px-3 rounded-full text-[13px] font-bold inline-flex items-center bg-primary text-white">
+                                Sudah berbayar
+                            </span>
+                        @else
+                            <span
+                                class="h-7 px-3 rounded-full text-[13px] font-bold inline-flex items-center {{ $subscription->freeTrial->isExpired() ? 'bg-[#FEF3F2] text-[#B42318]' : 'bg-ink text-white' }}">
+                                {{ $subscription->freeTrial->isExpired() ? 'Sudah berakhir' : 'Sedang berjalan' }}
+                            </span>
+                        @endif
                     </div>
                     <dl class="grid grid-cols-2 sm:grid-cols-3 gap-4">
                         <div>
