@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ReminderType;
+use App\Enums\SubscriptionStatus;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -95,6 +96,11 @@ class Reminder extends Model
         $subscription = $this->subscription;
 
         if (!$subscription) {
+            return false;
+        }
+
+        // Pengingat hanya berlaku untuk langganan yang masih berjalan (aktif atau masa uji coba)
+        if (!in_array($subscription->status, [SubscriptionStatus::ACTIVE, SubscriptionStatus::TRIAL], true)) {
             return false;
         }
 

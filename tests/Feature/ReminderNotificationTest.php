@@ -223,4 +223,45 @@ class ReminderNotificationTest extends TestCase
             'notify_before_days' => 1,
         ]);
     }
+
+    /**
+     * Memastikan langganan yang dibatalkan atau dijeda tidak mengirim pengingat,
+     * sedangkan langganan masa uji coba tetap mengirim.
+     */
+    public function test_reminder_is_skipped_for_cancelled_and_paused_subscriptions(): void
+    {
+        Mail::fake();
+        Carbon::setTestNow('2026-10-07 08:00:00');
+
+        $user = User::factory()->create(['email' => 'user@example.com']);
+
+        $reminders = [];
+        foreach ([SubscriptionStatus::CANCELLED, SubscriptionStatus::PAUSED, SubscriptionStatus::TRIAL] as $status) {
+            $subscription = Subscription::create([
+                'user_id' => $user->id,
+                'name' => 'Langganan ' . $status->value,
+                'price' => 50000,
+                'currency' => 'IDR',
+                'billing_period' => BillingPeriod::MONTHLY,
+                'next_payment_date' => '2026-10-10',
+                'status' => $status,
+            ]);
+
+            $reminders[$status->value] = Reminder::create([
+                'user_id' => $user->id,
+                'subscription_id' => $subscription->id,
+                'type' => ReminderType::PAYMENT_DUE,
+                'notify_before_days' => 3,
+                'is_active' => true,
+            ]);
+        }
+
+        $processed = app(NotificationService::class)->checkDueReminders();
+
+        $this->assertCount(1, $processed);
+        $this->assertSame($reminders['TRIAL']->id, $processed[0]->reminder_id);
+        $this->assertFalse(Notification::where('reminder_id', $reminders['CANCELLED']->id)->exists());
+        $this->assertFalse(Notification::where('reminder_id', $reminders['PAUSED']->id)->exists());
+        Mail::assertSent(SubscriptionReminderMail::class, 1);
+    }
 }
