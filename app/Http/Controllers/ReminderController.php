@@ -23,13 +23,13 @@ class ReminderController extends Controller
     }
 
     /**
-     * Tampilkan seluruh pengingat milik user dan opsi subscription aktif.
+     * Tampilkan seluruh pengingat milik user dan opsi subscription aktif atau masa uji coba.
      */
     public function index(Request $request): View
     {
         $userId = auth()->id();
         $reminders = $this->reminderRepository->getByUser($userId);
-        $subscriptions = $this->subscriptionRepository->getActiveByUser($userId);
+        $subscriptions = $this->subscriptionRepository->getRemindableByUser($userId);
 
         return view('reminders.index', compact('reminders', 'subscriptions'));
     }

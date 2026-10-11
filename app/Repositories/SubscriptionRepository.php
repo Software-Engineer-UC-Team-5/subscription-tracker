@@ -49,6 +49,18 @@ class SubscriptionRepository
     }
 
     /**
+     * Ambil subscription yang masih berjalan (ACTIVE atau TRIAL) milik user untuk pilihan pengingat.
+     */
+    public function getRemindableByUser(int $userId): Collection
+    {
+        return Subscription::with(['category', 'paymentMethod', 'freeTrial'])
+            ->where('user_id', $userId)
+            ->whereIn('status', [SubscriptionStatus::ACTIVE, SubscriptionStatus::TRIAL])
+            ->orderBy('next_payment_date', 'asc')
+            ->get();
+    }
+
+    /**
      * Ambil tagihan yang akan datang dalam N hari ke depan (Upcoming Payments).
      */
     public function getUpcomingByUser(int $userId, int $days = 7): Collection

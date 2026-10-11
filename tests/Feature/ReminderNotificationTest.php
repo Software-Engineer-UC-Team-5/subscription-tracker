@@ -264,4 +264,34 @@ class ReminderNotificationTest extends TestCase
         $this->assertFalse(Notification::where('reminder_id', $reminders['PAUSED']->id)->exists());
         Mail::assertSent(SubscriptionReminderMail::class, 1);
     }
+
+    /**
+     * Memastikan langganan masa uji coba muncul di pilihan form pengingat,
+     * sedangkan langganan yang dibatalkan tidak.
+     */
+    public function test_reminder_form_lists_trial_subscriptions_but_not_cancelled_ones(): void
+    {
+        $user = User::factory()->create();
+
+        foreach ([
+            'YouTube Premium' => SubscriptionStatus::TRIAL,
+            'Disney Hotstar' => SubscriptionStatus::CANCELLED,
+        ] as $name => $status) {
+            Subscription::create([
+                'user_id' => $user->id,
+                'name' => $name,
+                'price' => 59000,
+                'currency' => 'IDR',
+                'billing_period' => BillingPeriod::MONTHLY,
+                'next_payment_date' => now()->addDays(5)->toDateString(),
+                'status' => $status,
+            ]);
+        }
+
+        $this->actingAs($user)
+            ->get('/reminders')
+            ->assertOk()
+            ->assertSee('YouTube Premium')
+            ->assertDontSee('Disney Hotstar');
+    }
 }
