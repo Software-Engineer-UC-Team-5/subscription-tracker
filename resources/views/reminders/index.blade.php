@@ -187,18 +187,14 @@
                         @foreach ($reminders as $reminder)
                             <li class="p-4 rounded-[20px] bg-ink-900 border border-ink-800 flex flex-col gap-3">
                                 <div class="min-w-0">
-                                    @if ($reminder->subscription)
-                                        <a href="{{ route('subscriptions.show', $reminder->subscription) }}"
-                                            class="text-base font-bold text-white hover:underline break-words">
-                                            {{ $reminder->subscription->name }}
-                                        </a>
-                                        <span class="block text-[13px] text-zinc-400">
-                                            Jatuh tempo:
-                                            {{ $reminder->subscription->next_payment_date ? $reminder->subscription->next_payment_date->locale('id')->translatedFormat('d M Y') : '-' }}
-                                        </span>
-                                    @else
-                                        <span class="text-base font-bold text-zinc-400">Langganan telah dihapus</span>
-                                    @endif
+                                    <a href="{{ route('subscriptions.show', $reminder->subscription) }}"
+                                        class="text-base font-bold text-white hover:underline break-words">
+                                        {{ $reminder->subscription->name }}
+                                    </a>
+                                    <span class="block text-[13px] text-zinc-400">
+                                        Jatuh tempo:
+                                        {{ $reminder->subscription->next_payment_date ? $reminder->subscription->next_payment_date->locale('id')->translatedFormat('d M Y') : '-' }}
+                                    </span>
                                     <span class="mt-2 flex flex-wrap items-center gap-2">
                                         <span
                                             class="h-7 px-3 rounded-full bg-ink-800 text-zinc-200 text-[13px] font-semibold inline-flex items-center whitespace-nowrap">

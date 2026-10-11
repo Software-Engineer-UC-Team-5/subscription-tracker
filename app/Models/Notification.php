@@ -45,26 +45,6 @@ class Notification extends Model
     }
 
     /**
-     * Domain method: Kirim notifikasi ke email pengguna.
-     */
-    public function send(): bool
-    {
-        try {
-            // Simulasi/pengiriman email notifikasi
-            if ($this->user && $this->user->email) {
-                // Di sistem riil, panggil Mailer/Notification
-                $this->markAsSent();
-                return true;
-            }
-            $this->markAsFailed();
-            return false;
-        } catch (\Throwable $e) {
-            $this->markAsFailed();
-            return false;
-        }
-    }
-
-    /**
      * Tandai notifikasi berhasil dikirim.
      */
     public function markAsSent(): void

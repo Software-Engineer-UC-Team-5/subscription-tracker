@@ -18,16 +18,6 @@ class ReminderRepository
     }
 
     /**
-     * Ambil seluruh pengingat aktif di sistem untuk diproses oleh Scheduler / Cron.
-     */
-    public function getAllActive(): Collection
-    {
-        return Reminder::with(['subscription.freeTrial', 'subscription.user'])
-            ->where('is_active', true)
-            ->get();
-    }
-
-    /**
      * Cari pengingat berdasarkan ID dan user.
      */
     public function findByIdAndUser(int $id, int $userId): ?Reminder
