@@ -9,6 +9,7 @@ use App\Models\Subscription;
 use App\Repositories\SubscriptionRepository;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 class SubscriptionService
@@ -84,6 +85,19 @@ class SubscriptionService
                 if (!$subscription->next_payment_date?->isSameDay($newDate)) {
                     $data['billing_day'] = $newDate->day;
                 }
+            }
+
+            // Data trial disimpan ke tabel free_trials, bukan ke tabel subscriptions
+            $trialFields = ['trial_start_date', 'trial_end_date', 'cancel_before_days'];
+            $trialData = Arr::only($data, $trialFields);
+            $data = Arr::except($data, $trialFields);
+
+            if ($subscription->freeTrial && $trialData) {
+                $subscription->freeTrial->update(array_filter([
+                    'start_date' => $trialData['trial_start_date'] ?? null,
+                    'end_date' => $trialData['trial_end_date'] ?? null,
+                    'cancel_before_days' => $trialData['cancel_before_days'] ?? null,
+                ], fn ($value) => $value !== null));
             }
 
             $updated = $this->subscriptionRepository->update($subscription, $data);

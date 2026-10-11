@@ -187,6 +187,54 @@ class ExampleTest extends TestCase
     }
 
     /**
+     * Pengujian data trial dapat diperbarui lewat form edit dan tanggal berakhir sebelum mulai ditolak.
+     */
+    public function test_free_trial_data_can_be_updated_from_edit_form(): void
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user)->post('/subscriptions', [
+            'name' => 'YouTube Premium',
+            'price' => 59000,
+            'billing_period' => 'MONTHLY',
+            'next_payment_date' => '2026-11-20',
+            'status' => 'TRIAL',
+            'is_free_trial' => 1,
+            'trial_start_date' => '2026-10-20',
+            'trial_end_date' => '2026-11-19',
+            'cancel_before_days' => 1,
+        ]);
+        $subscription = $user->subscriptions()->sole();
+
+        $payload = [
+            'name' => 'YouTube Premium',
+            'price' => 59000,
+            'billing_period' => 'MONTHLY',
+            'next_payment_date' => '2026-11-20',
+            'status' => 'TRIAL',
+            'trial_start_date' => '2026-10-20',
+            'trial_end_date' => '2026-11-25',
+            'cancel_before_days' => 3,
+        ];
+
+        $this->put("/subscriptions/{$subscription->id}", $payload)
+            ->assertRedirect('/subscriptions')
+            ->assertSessionHasNoErrors();
+        $freeTrial = $subscription->freeTrial()->sole();
+        $this->assertEquals('2026-11-25', $freeTrial->end_date->toDateString());
+        $this->assertSame(3, $freeTrial->cancel_before_days);
+
+        // Tanggal berakhir sebelum tanggal mulai ditolak dan data lama tidak berubah
+        $this->from("/subscriptions/{$subscription->id}/edit")
+            ->put("/subscriptions/{$subscription->id}", ['trial_end_date' => '2026-10-01'] + $payload)
+            ->assertSessionHasErrors(['trial_end_date' => 'Tanggal berakhir trial tidak boleh sebelum tanggal mulai trial.']);
+        $this->assertEquals('2026-11-25', $subscription->freeTrial()->sole()->end_date->toDateString());
+
+        // Langganan trial wajib menyertakan tanggal berakhir
+        $this->put("/subscriptions/{$subscription->id}", ['trial_end_date' => ''] + $payload)
+            ->assertSessionHasErrors(['trial_end_date' => 'Tanggal berakhir trial wajib diisi.']);
+    }
+
+    /**
      * Pengujian free trial yang dicentang wajib memiliki tanggal berakhir trial.
      */
     public function test_free_trial_requires_trial_end_date(): void

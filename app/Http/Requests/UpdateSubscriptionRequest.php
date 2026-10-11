@@ -28,6 +28,10 @@ class UpdateSubscriptionRequest extends FormRequest
             'category_id' => ['nullable', Rule::exists('categories', 'id')->where('user_id', $this->user()->id)],
             'payment_method_id' => ['nullable', Rule::exists('payment_methods', 'id')->where('user_id', $this->user()->id)],
             'is_free_trial' => ['nullable', 'boolean'],
+            // Data trial wajib lengkap bila langganan ini memiliki masa uji coba
+            'trial_start_date' => [Rule::requiredIf($this->hasFreeTrial()), 'nullable', 'date'],
+            'trial_end_date' => [Rule::requiredIf($this->hasFreeTrial()), 'nullable', 'date', 'after_or_equal:trial_start_date'],
+            'cancel_before_days' => ['nullable', 'integer', 'min:0'],
         ];
     }
 
@@ -39,6 +43,19 @@ class UpdateSubscriptionRequest extends FormRequest
             'name.required' => 'Nama langganan wajib diisi.',
             'price.required' => 'Biaya langganan wajib diisi.',
             'status.required' => 'Status langganan wajib dipilih.',
+            'trial_start_date.required' => 'Tanggal mulai trial wajib diisi.',
+            'trial_end_date.required' => 'Tanggal berakhir trial wajib diisi.',
+            'trial_end_date.after_or_equal' => 'Tanggal berakhir trial tidak boleh sebelum tanggal mulai trial.',
+            'cancel_before_days.integer' => 'Batas batal harus berupa angka.',
+            'cancel_before_days.min' => 'Batas batal minimal 0 hari.',
         ];
+    }
+
+    /**
+     * Cek apakah langganan yang sedang diedit memiliki data masa uji coba.
+     */
+    private function hasFreeTrial(): bool
+    {
+        return $this->route('subscription')?->freeTrial !== null;
     }
 }
