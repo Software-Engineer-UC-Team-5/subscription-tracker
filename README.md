@@ -1,6 +1,6 @@
 # Subscription Tracker
 
-Sistem manajemen dan pelacak biaya langganan berbasis web (Laravel 12 / PHP 8.2+) untuk memantau siklus tagihan, masa _free trial_, pengingat jatuh tempo, dan riwayat notifikasi.
+Sistem manajemen dan pelacak biaya langganan berbasis web (Laravel 13 / PHP 8.3+) untuk memantau siklus tagihan, masa _free trial_, pengingat jatuh tempo, dan riwayat notifikasi.
 
 ---
 
@@ -8,7 +8,7 @@ Sistem manajemen dan pelacak biaya langganan berbasis web (Laravel 12 / PHP 8.2+
 
 Sebelum memulai, pastikan perangkat Anda telah terpasang:
 
--   **PHP**: Versi 8.2 atau lebih baru (disarankan 8.3 / 8.4)
+-   **PHP**: Versi 8.3 atau lebih baru (disarankan 8.4)
 -   **Composer**: Versi 2.x
 -   **Database**: MySQL atau MariaDB (port default 3306)
 -   **Web Server / Lingkungan Lokal**:
@@ -82,7 +82,7 @@ Pastikan service database MySQL aktif, kemudian jalankan seluruh migrasi dan see
 php artisan migrate:fresh --seed
 ```
 
-Perintah ini akan membuat 10 tabel domain dan mengisi akun demo serta 5 kategori default (Streaming, Gaming, Productivity, Cloud, Music).
+Perintah ini akan membuat 10 tabel domain dan mengisi akun demo serta 5 kategori default (Hiburan & Streaming, Produktivitas & Kerja, Penyimpanan Cloud, Pendidikan & Kursus, Utilitas & Tools).
 
 ---
 
@@ -134,7 +134,7 @@ _(Fitur registrasi akun baru juga dapat dicoba mandiri melalui halaman `/registe
 
 ## 05. AUTOMATED TESTING
 
-Proyek ini telah dilengkapi automated feature tests untuk menguji seluruh alur autentikasi, proteksi sesi, dan ketersediaan 37 rute aplikasi:
+Proyek ini telah dilengkapi automated feature tests untuk menguji seluruh alur autentikasi, proteksi sesi, dan ketersediaan 35 rute aplikasi:
 
 ```bash
 php artisan test
@@ -142,7 +142,7 @@ php artisan test
 
 ---
 
-## 06. STRUKTUR MODUL & 37 RUTE AKTIF
+## 06. STRUKTUR MODUL & 35 RUTE AKTIF
 
 Seluruh rute aplikasi telah terdaftar aktif tanpa status 404:
 
