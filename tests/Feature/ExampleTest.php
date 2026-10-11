@@ -152,6 +152,29 @@ class ExampleTest extends TestCase
     }
 
     /**
+     * Pengujian free trial yang dicentang wajib memiliki tanggal berakhir trial.
+     */
+    public function test_free_trial_requires_trial_end_date(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->from('/subscriptions/create')->post('/subscriptions', [
+            'name' => 'Netflix Premium UHD',
+            'price' => 186000,
+            'billing_period' => 'MONTHLY',
+            'next_payment_date' => now()->addDays(14)->format('Y-m-d'),
+            'status' => 'TRIAL',
+            'is_free_trial' => 1,
+            'trial_start_date' => now()->format('Y-m-d'),
+            'trial_end_date' => '',
+        ]);
+
+        $response->assertRedirect('/subscriptions/create')
+            ->assertSessionHasErrors(['trial_end_date' => 'Tanggal berakhir trial wajib diisi jika free trial dicentang.']);
+        $this->assertDatabaseMissing('subscriptions', ['user_id' => $user->id]);
+    }
+
+    /**
      * Pengujian keamanan isolasi data: Pengguna tidak boleh mengakses subscription milik pengguna lain (NFR-004).
      */
     public function test_user_cannot_access_other_users_subscription(): void

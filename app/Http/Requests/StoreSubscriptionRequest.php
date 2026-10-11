@@ -29,7 +29,7 @@ class StoreSubscriptionRequest extends FormRequest
             'payment_method_id' => ['nullable', Rule::exists('payment_methods', 'id')->where('user_id', $this->user()->id)],
             'is_free_trial' => ['nullable', 'boolean'],
             'trial_start_date' => ['nullable', 'date'],
-            'trial_end_date' => ['nullable', 'date', 'after_or_equal:trial_start_date'],
+            'trial_end_date' => ['nullable', 'required_if_accepted:is_free_trial', 'date', 'after_or_equal:trial_start_date'],
             'cancel_before_days' => ['nullable', 'integer', 'min:0'],
         ];
     }
@@ -43,6 +43,7 @@ class StoreSubscriptionRequest extends FormRequest
             'price.required' => 'Biaya langganan wajib diisi.',
             'billing_period.required' => 'Periode pembayaran wajib dipilih.',
             'next_payment_date.required' => 'Tanggal pembayaran berikutnya wajib diisi.',
+            'trial_end_date.required_if_accepted' => 'Tanggal berakhir trial wajib diisi jika free trial dicentang.',
         ];
     }
 }
