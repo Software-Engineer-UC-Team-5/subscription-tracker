@@ -3,18 +3,27 @@
 @section('title', 'Riwayat aktivitas')
 
 @section('page_title', 'Riwayat aktivitas')
-@section('page_subtitle', 'Catatan perubahan data dan login di akunmu.')
+@section('page_subtitle', 'Semua perubahan di akun ini, dari yang terbaru.')
 
 @section('content')
     @php
-        // Label tampilan untuk kode aksi yang disimpan backend; nilai di database tidak berubah
+        // Label cadangan untuk kode aksi yang disimpan backend; nilai di database tidak berubah
         $actionLabels = [
             'CREATE' => 'Dibuat',
             'UPDATE' => 'Diubah',
             'DELETE' => 'Dihapus',
-            'LOGIN' => 'Masuk',
-            'LOGOUT' => 'Keluar',
-            'REGISTER' => 'Daftar',
+            'LOGIN' => 'Masuk ke akun',
+            'LOGOUT' => 'Keluar dari akun',
+            'REGISTER' => 'Mendaftar akun baru',
+        ];
+
+        // Label jenis entitas; kalau tidak ada di daftar, nama asli dari backend dipakai
+        $entityLabels = [
+            'Category' => 'Kategori',
+            'Subscription' => 'Langganan',
+            'PaymentMethod' => 'Metode bayar',
+            'Reminder' => 'Pengingat',
+            'User' => 'Akun',
         ];
     @endphp
 
@@ -34,54 +43,34 @@
             </p>
         </div>
     @else
-        <div class="flex items-center justify-between gap-4">
-            <h2 class="text-[22px] leading-[30px] font-bold text-ink tracking-[-0.2px]">Semua aktivitas</h2>
-            <span class="text-[13px] font-semibold text-[#6B6B73]">Total log: {{ $logs->total() }}</span>
-        </div>
+        <!-- Dikelompokkan per tanggal (hanya untuk halaman yang sedang tampil) -->
+        @php
+            $groups = $logs->getCollection()->groupBy(function ($log) {
+                return $log->created_at ? $log->created_at->locale('id')->translatedFormat('d M Y') : 'Tanpa tanggal';
+            });
+        @endphp
 
-        <!-- Tabel log; bisa digeser horizontal di layar kecil -->
-        <div class="mt-5 overflow-x-auto">
-            <table class="w-full min-w-[720px] text-left border-separate border-spacing-0">
-                <thead>
-                    <tr class="text-[13px] font-bold text-[#52525B]">
-                        <th scope="col" class="h-11 px-5 bg-[#F4F4F5] rounded-l-[14px] w-[19%]">Waktu</th>
-                        <th scope="col" class="h-11 px-5 bg-[#F4F4F5] w-[16%]">Jenis</th>
-                        <th scope="col" class="h-11 px-5 bg-[#F4F4F5] w-[18%]">Entitas</th>
-                        <th scope="col" class="h-11 px-5 bg-[#F4F4F5] rounded-r-[14px]">Rincian</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($logs as $log)
-                        <tr class="align-middle">
-                            <td class="px-5 py-[18px] border-b border-[#EEEEF0]">
+        @foreach ($groups as $tanggal => $items)
+            <div class="{{ $loop->first ? '' : 'mt-8' }}">
+                <h2 class="text-[22px] leading-[30px] font-bold text-ink tracking-[-0.2px]">{{ $tanggal }}</h2>
+
+                <ul class="mt-3 divide-y divide-[#EEEEF0]">
+                    @foreach ($items as $log)
+                        <li class="py-4 min-w-0">
+                            <p class="text-[15px] leading-[22px] font-semibold text-ink break-words">
+                                {{ $log->description ?? ($actionLabels[$log->action] ?? ucfirst(strtolower($log->action))) }}
+                            </p>
+                            <p class="mt-0.5 text-[13px] leading-[18px] text-[#6B6B73]">
+                                {{ $entityLabels[$log->entity] ?? ($log->entity ?? 'Aktivitas') }}
                                 @if ($log->created_at)
-                                    <span class="block text-[15px] leading-[22px] font-bold text-ink whitespace-nowrap">
-                                        {{ $log->created_at->locale('id')->translatedFormat('d M Y, H.i') }}
-                                    </span>
-                                    <span class="block text-[13px] leading-[18px] text-[#6B6B73]">
-                                        {{ $log->created_at->locale('id')->diffForHumans() }}
-                                    </span>
-                                @else
-                                    <span class="text-[15px] text-[#6B6B73]">-</span>
+                                    · {{ $log->created_at->locale('id')->translatedFormat('H.i') }}
                                 @endif
-                            </td>
-                            <td class="px-5 py-[18px] border-b border-[#EEEEF0]">
-                                <span
-                                    class="h-8 px-3.5 rounded-2xl bg-[#F4F4F5] text-[#52525B] text-[13px] font-bold inline-flex items-center whitespace-nowrap">
-                                    {{ $actionLabels[$log->action] ?? ucfirst(strtolower($log->action)) }}
-                                </span>
-                            </td>
-                            <td class="px-5 py-[18px] border-b border-[#EEEEF0] text-sm text-[#52525B] break-words">
-                                {{ $log->entity ?? '-' }}@if ($log->entity_id) #{{ $log->entity_id }}@endif
-                            </td>
-                            <td class="px-5 py-[18px] border-b border-[#EEEEF0] text-[15px] leading-[22px] text-[#3F3F46] break-words">
-                                {{ $log->description ?? '-' }}
-                            </td>
-                        </tr>
+                            </p>
+                        </li>
                     @endforeach
-                </tbody>
-            </table>
-        </div>
+                </ul>
+            </div>
+        @endforeach
 
         @if ($logs->hasPages())
             <div class="mt-6">
