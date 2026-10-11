@@ -20,7 +20,17 @@ class StoreReminderRequest extends FormRequest
             // Hanya langganan milik user sendiri yang boleh diberi pengingat
             'subscription_id' => ['required', Rule::exists('subscriptions', 'id')->where('user_id', $this->user()->id)],
             'type' => ['required', new Enum(ReminderType::class)],
-            'notify_before_days' => ['required', 'integer', 'min:0', 'max:30'],
+            // Tolak pengingat kembar (langganan, jenis, dan jumlah hari sama) agar email tidak terkirim dobel
+            'notify_before_days' => [
+                'required',
+                'integer',
+                'min:0',
+                'max:30',
+                Rule::unique('reminders')
+                    ->where('user_id', $this->user()->id)
+                    ->where('subscription_id', $this->input('subscription_id'))
+                    ->where('type', $this->input('type')),
+            ],
             'is_active' => ['nullable', 'boolean'],
         ];
     }
@@ -34,6 +44,7 @@ class StoreReminderRequest extends FormRequest
             'notify_before_days.required' => 'Jumlah hari sebelum jatuh tempo wajib diisi.',
             'notify_before_days.min' => 'Jumlah hari sebelum jatuh tempo minimal 0 (hari H).',
             'notify_before_days.max' => 'Jumlah hari sebelum jatuh tempo maksimal 30 hari.',
+            'notify_before_days.unique' => 'Pengingat dengan jenis dan waktu yang sama sudah ada untuk langganan ini.',
         ];
     }
 

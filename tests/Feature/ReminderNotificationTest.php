@@ -294,4 +294,38 @@ class ReminderNotificationTest extends TestCase
             ->assertSee('YouTube Premium')
             ->assertDontSee('Disney Hotstar');
     }
+
+    /**
+     * Memastikan pengingat kembar ditolak, sedangkan jumlah hari berbeda tetap boleh.
+     */
+    public function test_duplicate_reminder_is_rejected(): void
+    {
+        $user = User::factory()->create();
+        $subscription = Subscription::create([
+            'user_id' => $user->id,
+            'name' => 'Netflix',
+            'price' => 186000,
+            'currency' => 'IDR',
+            'billing_period' => BillingPeriod::MONTHLY,
+            'next_payment_date' => now()->addDays(10)->toDateString(),
+            'status' => SubscriptionStatus::ACTIVE,
+        ]);
+
+        $payload = [
+            'subscription_id' => $subscription->id,
+            'type' => ReminderType::PAYMENT_DUE->value,
+            'notify_before_days' => 3,
+        ];
+
+        $this->actingAs($user)->post('/reminders', $payload)->assertSessionHasNoErrors();
+
+        // Kombinasi yang sama ditolak
+        $this->actingAs($user)->post('/reminders', $payload)
+            ->assertSessionHasErrors(['notify_before_days' => 'Pengingat dengan jenis dan waktu yang sama sudah ada untuk langganan ini.']);
+        $this->assertEquals(1, Reminder::where('subscription_id', $subscription->id)->count());
+
+        // Jumlah hari berbeda tetap diterima
+        $this->actingAs($user)->post('/reminders', ['notify_before_days' => 1] + $payload)->assertSessionHasNoErrors();
+        $this->assertEquals(2, Reminder::where('subscription_id', $subscription->id)->count());
+    }
 }
