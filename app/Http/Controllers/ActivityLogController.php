@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ActivityLog;
+use App\Repositories\ActivityLogRepository;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -12,14 +12,17 @@ use Illuminate\View\View;
  */
 class ActivityLogController extends Controller
 {
+    public function __construct(
+        protected ActivityLogRepository $activityLogRepository
+    ) {
+    }
+
     /**
      * Tampilkan riwayat log aktivitas pengguna.
      */
     public function index(Request $request): View
     {
-        $logs = ActivityLog::where('user_id', auth()->id())
-            ->orderBy('created_at', 'desc')
-            ->paginate(20);
+        $logs = $this->activityLogRepository->getByUser(auth()->id());
 
         return view('activity_logs.index', compact('logs'));
     }
