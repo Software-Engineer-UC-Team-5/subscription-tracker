@@ -21,12 +21,14 @@
     @php
         $labelClass = 'text-sm font-semibold text-ink';
         $fieldClass = 'w-full h-[52px] rounded-2xl text-base text-ink outline-none transition focus:bg-white focus:border-2 focus:border-primary';
-        $fieldState = fn (string $field) => $errors->has($field)
+        $fieldState = fn (string $field, string $idle = 'bg-[#F4F4F5]') => $errors->has($field)
             ? 'bg-white border-2 border-[#B42318]'
-            : 'bg-[#F4F4F5] border-[1.5px] border-[#E4E4E7]';
+            : $idle . ' border-[1.5px] border-[#E4E4E7]';
+        $freeTrial = $subscription->freeTrial;
 
         // Error yang tidak punya field di formulir ini tetap ditampilkan di atas
-        $formFields = ['name', 'price', 'billing_period', 'next_payment_date', 'status', 'category_id', 'payment_method_id'];
+        $formFields = ['name', 'price', 'billing_period', 'next_payment_date', 'status', 'category_id', 'payment_method_id',
+            'trial_start_date', 'trial_end_date', 'cancel_before_days'];
         $otherErrors = collect($errors->getMessages())->except($formFields)->flatten();
     @endphp
 
@@ -144,6 +146,45 @@
                 @enderror
             </div>
         </div>
+
+        @if ($freeTrial)
+            <!-- Masa uji coba gratis: hanya tampil untuk langganan yang punya data trial -->
+            <div class="p-5 rounded-3xl bg-[#F4F4F5] flex flex-col gap-4">
+                <h2 class="text-[15px] font-semibold text-ink">Masa uji coba gratis</h2>
+                <div class="flex flex-wrap gap-4">
+                    <div class="flex-[1_1_160px] flex flex-col gap-2">
+                        <label for="trial_start_date" class="{{ $labelClass }}">Mulai trial</label>
+                        <input type="date" id="trial_start_date" name="trial_start_date"
+                            value="{{ old('trial_start_date', $freeTrial->start_date->format('Y-m-d')) }}"
+                            @error('trial_start_date') aria-invalid="true" aria-describedby="trial_start_date-error" @enderror
+                            class="{{ $fieldClass }} {{ $fieldState('trial_start_date', 'bg-white') }} px-[18px]">
+                        @error('trial_start_date')
+                            <p id="trial_start_date-error" class="text-sm text-[#B42318]">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <div class="flex-[1_1_160px] flex flex-col gap-2">
+                        <label for="trial_end_date" class="{{ $labelClass }}">Berakhir trial</label>
+                        <input type="date" id="trial_end_date" name="trial_end_date"
+                            value="{{ old('trial_end_date', $freeTrial->end_date->format('Y-m-d')) }}"
+                            @error('trial_end_date') aria-invalid="true" aria-describedby="trial_end_date-error" @enderror
+                            class="{{ $fieldClass }} {{ $fieldState('trial_end_date', 'bg-white') }} px-[18px]">
+                        @error('trial_end_date')
+                            <p id="trial_end_date-error" class="text-sm text-[#B42318]">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <div class="flex-[1_1_160px] flex flex-col gap-2">
+                        <label for="cancel_before_days" class="{{ $labelClass }}">Batas batal (H-hari)</label>
+                        <input type="number" id="cancel_before_days" name="cancel_before_days" min="0" max="7"
+                            inputmode="numeric" value="{{ old('cancel_before_days', $freeTrial->cancel_before_days) }}"
+                            @error('cancel_before_days') aria-invalid="true" aria-describedby="cancel_before_days-error" @enderror
+                            class="{{ $fieldClass }} {{ $fieldState('cancel_before_days', 'bg-white') }} px-[18px]">
+                        @error('cancel_before_days')
+                            <p id="cancel_before_days-error" class="text-sm text-[#B42318]">{{ $message }}</p>
+                        @enderror
+                    </div>
+                </div>
+            </div>
+        @endif
 
         <div class="mt-1 flex flex-wrap gap-3">
             <button type="submit"

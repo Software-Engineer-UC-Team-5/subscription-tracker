@@ -152,6 +152,41 @@ class ExampleTest extends TestCase
     }
 
     /**
+     * Pengujian form edit menampilkan isian trial hanya untuk langganan yang punya data trial.
+     */
+    public function test_edit_form_shows_trial_fields_only_for_free_trial_subscriptions(): void
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user)->post('/subscriptions', [
+            'name' => 'YouTube Premium',
+            'price' => 59000,
+            'billing_period' => 'MONTHLY',
+            'next_payment_date' => '2026-11-20',
+            'status' => 'TRIAL',
+            'is_free_trial' => 1,
+            'trial_start_date' => '2026-10-20',
+            'trial_end_date' => '2026-11-19',
+            'cancel_before_days' => 3,
+        ]);
+        $this->actingAs($user)->post('/subscriptions', [
+            'name' => 'Spotify',
+            'price' => 54990,
+            'billing_period' => 'MONTHLY',
+            'next_payment_date' => '2026-11-20',
+        ]);
+        [$trial, $regular] = [$user->subscriptions()->where('name', 'YouTube Premium')->sole(), $user->subscriptions()->where('name', 'Spotify')->sole()];
+
+        $this->get("/subscriptions/{$trial->id}/edit")->assertOk()
+            ->assertSee('name="trial_start_date"', false)
+            ->assertSee('value="2026-10-20"', false)
+            ->assertSee('value="2026-11-19"', false)
+            ->assertSee('name="cancel_before_days"', false);
+
+        $this->get("/subscriptions/{$regular->id}/edit")->assertOk()
+            ->assertDontSee('name="trial_start_date"', false);
+    }
+
+    /**
      * Pengujian free trial yang dicentang wajib memiliki tanggal berakhir trial.
      */
     public function test_free_trial_requires_trial_end_date(): void
