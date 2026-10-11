@@ -56,16 +56,21 @@
 
                 <ul class="mt-3 divide-y divide-[#EEEEF0]">
                     @foreach ($items as $log)
-                        <li class="py-4 min-w-0">
-                            <p class="text-[15px] leading-[22px] font-semibold text-ink break-words">
-                                {{ $log->description ?? ($actionLabels[$log->action] ?? ucfirst(strtolower($log->action))) }}
-                            </p>
-                            <p class="mt-0.5 text-[13px] leading-[18px] text-[#6B6B73]">
-                                {{ $entityLabels[$log->entity] ?? ($log->entity ?? 'Aktivitas') }}
+                        <li class="py-4 flex gap-4">
+                            <!-- Kolom jam di kiri; lebar tetap agar deskripsi tetap sejajar walau jam kosong -->
+                            <div class="w-12 shrink-0 text-[13px] leading-[22px] text-[#6B6B73] tabular-nums">
                                 @if ($log->created_at)
-                                    · {{ $log->created_at->locale('id')->translatedFormat('H.i') }}
+                                    <time datetime="{{ $log->created_at->toIso8601String() }}">{{ $log->created_at->locale('id')->translatedFormat('H.i') }}</time>
                                 @endif
-                            </p>
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <p class="text-[15px] leading-[22px] font-semibold text-ink break-words">
+                                    {{ $log->description ?? ($actionLabels[$log->action] ?? ucfirst(strtolower($log->action))) }}
+                                </p>
+                                <p class="mt-0.5 text-[13px] leading-[18px] text-[#6B6B73]">
+                                    {{ $entityLabels[$log->entity] ?? ($log->entity ?? 'Aktivitas') }}
+                                </p>
+                            </div>
                         </li>
                     @endforeach
                 </ul>
