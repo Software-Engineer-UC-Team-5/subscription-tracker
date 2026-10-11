@@ -68,9 +68,7 @@ class SubscriptionController extends Controller
      */
     public function show(Subscription $subscription): View
     {
-        if ($subscription->user_id !== auth()->id()) {
-            abort(403, 'Anda tidak memiliki hak akses untuk melihat data langganan ini.');
-        }
+        $this->subscriptionService->ensureOwnership($subscription, auth()->id(), 'Anda tidak memiliki hak akses untuk melihat data langganan ini.');
 
         $subscription->load(['category', 'paymentMethod', 'freeTrial', 'reminders']);
 
@@ -82,9 +80,7 @@ class SubscriptionController extends Controller
      */
     public function edit(Subscription $subscription): View
     {
-        if ($subscription->user_id !== auth()->id()) {
-            abort(403, 'Anda tidak memiliki hak akses untuk mengubah data langganan ini.');
-        }
+        $this->subscriptionService->ensureOwnership($subscription, auth()->id(), 'Anda tidak memiliki hak akses untuk mengubah data langganan ini.');
 
         $userId = auth()->id();
         $categories = $this->categoryRepository->getAvailableForUser($userId);
@@ -98,9 +94,7 @@ class SubscriptionController extends Controller
      */
     public function update(UpdateSubscriptionRequest $request, Subscription $subscription): RedirectResponse
     {
-        if ($subscription->user_id !== auth()->id()) {
-            abort(403, 'Anda tidak memiliki hak akses untuk memperbarui data langganan ini.');
-        }
+        $this->subscriptionService->ensureOwnership($subscription, auth()->id(), 'Anda tidak memiliki hak akses untuk memperbarui data langganan ini.');
 
         $this->subscriptionService->updateSubscription($subscription, $request->validated());
 
@@ -113,9 +107,7 @@ class SubscriptionController extends Controller
      */
     public function destroy(Subscription $subscription): RedirectResponse
     {
-        if ($subscription->user_id !== auth()->id()) {
-            abort(403, 'Anda tidak memiliki hak akses untuk menghapus data langganan ini.');
-        }
+        $this->subscriptionService->ensureOwnership($subscription, auth()->id(), 'Anda tidak memiliki hak akses untuk menghapus data langganan ini.');
 
         $this->subscriptionService->deleteSubscription($subscription);
 

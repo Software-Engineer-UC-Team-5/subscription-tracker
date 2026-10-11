@@ -20,6 +20,14 @@ class SubscriptionService
     }
 
     /**
+     * Tolak akses dengan status 403 jika langganan bukan milik pengguna.
+     */
+    public function ensureOwnership(Subscription $subscription, int $userId, string $message): void
+    {
+        abort_unless($subscription->user_id === $userId, 403, $message);
+    }
+
+    /**
      * Ambil data langganan terfilter (FR-003).
      */
     public function getFiltered(int $userId, array $filters = []): Collection
