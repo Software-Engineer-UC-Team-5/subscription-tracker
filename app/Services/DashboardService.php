@@ -30,10 +30,11 @@ class DashboardService
     /**
      * Hitung estimasi total pengeluaran langganan aktif per bulan.
      * Mengonversi seluruh periode (Harian, Mingguan, Bulanan, Quarterly, Tahunan) ke bobot bulanan.
+     * $activeSubs dapat diisi data yang sudah diambil agar tidak query ulang.
      */
-    public function calculateMonthlyExpense(int $userId): float
+    public function calculateMonthlyExpense(int $userId, ?Collection $activeSubs = null): float
     {
-        $activeSubs = $this->getActiveSubscriptions($userId);
+        $activeSubs ??= $this->getActiveSubscriptions($userId);
 
         $total = 0.0;
         foreach ($activeSubs as $sub) {
@@ -45,10 +46,11 @@ class DashboardService
 
     /**
      * Hitung estimasi total pengeluaran langganan aktif per tahun.
+     * $activeSubs dapat diisi data yang sudah diambil agar tidak query ulang.
      */
-    public function calculateYearlyExpense(int $userId): float
+    public function calculateYearlyExpense(int $userId, ?Collection $activeSubs = null): float
     {
-        $activeSubs = $this->getActiveSubscriptions($userId);
+        $activeSubs ??= $this->getActiveSubscriptions($userId);
 
         $total = 0.0;
         foreach ($activeSubs as $sub) {
@@ -67,8 +69,8 @@ class DashboardService
 
         return [
             'total_active' => $activeSubs->count(),
-            'monthly_expense' => $this->calculateMonthlyExpense($userId),
-            'yearly_expense' => $this->calculateYearlyExpense($userId),
+            'monthly_expense' => $this->calculateMonthlyExpense($userId, $activeSubs),
+            'yearly_expense' => $this->calculateYearlyExpense($userId, $activeSubs),
             'upcoming_payments' => $this->getUpcomingPayments($userId, 7),
         ];
     }
