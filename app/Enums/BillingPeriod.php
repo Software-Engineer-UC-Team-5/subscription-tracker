@@ -26,18 +26,25 @@ enum BillingPeriod: string
     /**
      * Hitung tanggal tagihan berikutnya satu periode setelah tanggal yang diberikan.
      * NoOverflow menjaga 31 Jan menjadi 28/29 Feb, bukan 2/3 Maret.
+     * $billingDay (tanggal tagihan asli) mengembalikan 28 Feb ke 31 Mar, bukan tertahan di 28 Mar.
      */
-    public function nextDateAfter(Carbon $date): Carbon
+    public function nextDateAfter(Carbon $date, ?int $billingDay = null): Carbon
     {
         $date = $date->copy();
 
-        return match ($this) {
+        $next = match ($this) {
             self::DAILY => $date->addDay(),
             self::WEEKLY => $date->addWeek(),
             self::MONTHLY => $date->addMonthNoOverflow(),
             self::QUARTERLY => $date->addMonthsNoOverflow(3),
             self::YEARLY => $date->addYearNoOverflow(),
         };
+
+        if ($billingDay && in_array($this, [self::MONTHLY, self::QUARTERLY, self::YEARLY], true)) {
+            $next->day(min($billingDay, $next->daysInMonth));
+        }
+
+        return $next;
     }
 
     /**

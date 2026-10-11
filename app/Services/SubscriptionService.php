@@ -7,6 +7,7 @@ use App\Models\ActivityLog;
 use App\Models\FreeTrial;
 use App\Models\Subscription;
 use App\Repositories\SubscriptionRepository;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -76,6 +77,15 @@ class SubscriptionService
     public function updateSubscription(Subscription $subscription, array $data): bool
     {
         return DB::transaction(function () use ($subscription, $data) {
+            // Tanggal tagihan asli hanya diganti jika user benar-benar mengubah tanggalnya,
+            // agar 28 Feb hasil pergeseran otomatis tidak menimpa tanggal asli 31.
+            if (!empty($data['next_payment_date'])) {
+                $newDate = Carbon::parse($data['next_payment_date']);
+                if (!$subscription->next_payment_date?->isSameDay($newDate)) {
+                    $data['billing_day'] = $newDate->day;
+                }
+            }
+
             $updated = $this->subscriptionRepository->update($subscription, $data);
 
             if ($updated) {

@@ -24,6 +24,7 @@ class Subscription extends Model
         'currency',
         'billing_period',
         'next_payment_date',
+        'billing_day',
         'status',
         'is_free_trial',
     ];
@@ -35,8 +36,21 @@ class Subscription extends Model
             'billing_period' => BillingPeriod::class,
             'status' => SubscriptionStatus::class,
             'next_payment_date' => 'date',
+            'billing_day' => 'integer',
             'is_free_trial' => 'boolean',
         ];
+    }
+
+    /**
+     * Isi tanggal tagihan asli dari next_payment_date saat langganan pertama kali dibuat.
+     */
+    protected static function booted(): void
+    {
+        static::creating(function (Subscription $subscription) {
+            if ($subscription->billing_day === null && $subscription->next_payment_date) {
+                $subscription->billing_day = $subscription->next_payment_date->day;
+            }
+        });
     }
 
     public function user(): BelongsTo
@@ -93,7 +107,7 @@ class Subscription extends Model
 
         $date = $this->next_payment_date->copy();
         while ($date->lt($today)) {
-            $date = $this->billing_period->nextDateAfter($date);
+            $date = $this->billing_period->nextDateAfter($date, $this->billing_day);
         }
 
         return $this->update(['next_payment_date' => $date]);

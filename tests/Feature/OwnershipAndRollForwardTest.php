@@ -134,9 +134,53 @@ class OwnershipAndRollForwardTest extends TestCase
 
         $this->artisan('app:check-reminders')->assertSuccessful();
 
-        // 31 Jan -> 28 Feb (tanpa meluap ke Maret) -> ... -> 28 Okt
-        $this->assertEquals('2026-10-28', $monthEnd->fresh()->next_payment_date->toDateString());
+        // 31 Jan -> 28 Feb (tanpa meluap ke Maret) -> 31 Mar -> ... -> 31 Okt
+        $this->assertEquals('2026-10-31', $monthEnd->fresh()->next_payment_date->toDateString());
         $this->assertEquals('2026-10-15', $weekly->fresh()->next_payment_date->toDateString());
         $this->assertEquals('2026-09-01', $cancelled->fresh()->next_payment_date->toDateString());
+    }
+
+    /**
+     * Tagihan tanggal 31 kembali ke tanggal 31 setelah melewati bulan pendek, siklus demi siklus.
+     */
+    public function test_month_end_billing_day_is_restored_after_short_months(): void
+    {
+        $user = User::factory()->create();
+        $subscription = $this->makeSubscription($user, ['next_payment_date' => '2026-01-31']);
+        $this->assertSame(31, $subscription->billing_day);
+
+        foreach (['2026-02-01' => '2026-02-28', '2026-03-01' => '2026-03-31', '2026-04-01' => '2026-04-30', '2026-05-01' => '2026-05-31'] as $today => $expected) {
+            Carbon::setTestNow("{$today} 08:00:00");
+            $this->artisan('app:check-reminders')->assertSuccessful();
+            $this->assertEquals($expected, $subscription->fresh()->next_payment_date->toDateString());
+        }
+    }
+
+    /**
+     * Mengedit langganan tanpa mengubah tanggal mempertahankan tanggal asli; mengubah tanggal menggantinya.
+     */
+    public function test_editing_subscription_only_changes_billing_day_when_date_changes(): void
+    {
+        $user = User::factory()->create();
+        $subscription = $this->makeSubscription($user, ['next_payment_date' => '2026-01-31']);
+        Carbon::setTestNow('2026-02-01 08:00:00');
+        $this->artisan('app:check-reminders')->assertSuccessful();
+
+        $payload = [
+            'name' => 'Netflix Premium',
+            'price' => 186000,
+            'billing_period' => 'MONTHLY',
+            'next_payment_date' => '2026-02-28',
+            'status' => 'ACTIVE',
+        ];
+
+        // Tanggal tidak diubah: tanggal asli 31 tetap tersimpan
+        $this->actingAs($user)->put("/subscriptions/{$subscription->id}", $payload)->assertSessionHasNoErrors();
+        $this->assertSame(31, $subscription->fresh()->billing_day);
+
+        // Tanggal diubah user ke 15 Maret: tanggal asli ikut menjadi 15
+        $this->actingAs($user)->put("/subscriptions/{$subscription->id}", ['next_payment_date' => '2026-03-15'] + $payload)
+            ->assertSessionHasNoErrors();
+        $this->assertSame(15, $subscription->fresh()->billing_day);
     }
 }
