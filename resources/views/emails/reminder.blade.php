@@ -29,9 +29,10 @@
                         <td style="background-color: #0D0D0F; padding: 24px 32px; border-radius: 24px 24px 0 0;">
                             <table role="presentation" cellpadding="0" cellspacing="0" border="0">
                                 <tr>
-                                    <td width="36" height="36"
-                                        style="width: 36px; height: 36px; background-color: #D93A40; border-radius: 12px; font-size: 0; line-height: 0;">
-                                        &nbsp;</td>
+                                    <!-- Gmail dan Outlook tidak merender SVG, jadi ikon logo memakai simbol teks -->
+                                    <td width="36" height="36" align="center" valign="middle"
+                                        style="width: 36px; height: 36px; background-color: #D93A40; border-radius: 12px; font-family: Arial, Helvetica, sans-serif; font-size: 20px; line-height: 36px; font-weight: 700; color: #FFFFFF; text-align: center;">
+                                        &#8635;</td>
                                     <td
                                         style="padding-left: 12px; font-family: {!! $font !!}; font-size: 17px; font-weight: 700; color: #FFFFFF;">
                                         Subscription Tracker</td>
